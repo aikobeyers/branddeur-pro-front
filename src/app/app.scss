@@ -1,0 +1,10 @@
+.app-shell {
+	min-height: 100dvh;
+	display: flex;
+	background: linear-gradient(140deg, #edf3fb 0%, #f5f8fc 60%, #ecf2f8 100%);
+}
+
+.app-content {
+	flex: 1;
+	min-width: 0;
+}

@@ -1,0 +1,9 @@
+<section class="fire-doors-overview">
+	<h1>Branddeuren overzicht</h1>
+
+	@if (branddeuren$ | async; as branddeuren) {
+		<pre>{{ branddeuren | json }}</pre>
+	} @else {
+		<p>Laden...</p>
+	}
+</section>

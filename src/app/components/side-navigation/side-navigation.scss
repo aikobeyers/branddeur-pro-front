@@ -1,0 +1,130 @@
+:host {
+  display: block;
+}
+
+.side-nav {
+  width: 300px;
+  min-height: 100dvh;
+  background: #f8fafc;
+  border-right: 1px solid #e4ebf4;
+  box-shadow: inset -1px 0 0 #edf2f8;
+}
+
+.brand-header {
+  height: 92px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 18px;
+  background: linear-gradient(90deg, #0c172d 0%, #122b53 100%);
+  border-bottom: 1px solid #2f3f5c;
+}
+
+.brand-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 11px;
+  display: grid;
+  place-items: center;
+  color: #eaf6ff;
+  background: linear-gradient(145deg, #22aae6 0%, #1a85d0 85%);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.28), 0 8px 18px rgba(0, 0, 0, 0.25);
+}
+
+.brand-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.brand-copy {
+  line-height: 1.15;
+}
+
+.brand-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #ffffff;
+}
+
+.brand-subtitle {
+  margin: 2px 0 0;
+  font-size: 13px;
+  color: #adbed8;
+  font-weight: 600;
+}
+
+.nav-section {
+  padding: 28px 14px;
+}
+
+.section-label {
+  margin: 0 0 14px;
+  padding: 0 14px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: #7f8ca3;
+}
+
+.nav-item {
+  height: 46px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 14px;
+  color: #60728d;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  transition: box-shadow 160ms ease, transform 160ms ease;
+}
+
+.nav-item .item-icon {
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+}
+
+.nav-item .item-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.nav-item.active {
+  color: #eaf7ff;
+  background: linear-gradient(90deg, #1ea9ea 0%, #0d87d5 100%);
+  box-shadow: 0 6px 14px rgba(13, 135, 213, 0.32), inset 0 0 0 1px rgba(255, 255, 255, 0.28);
+}
+
+.nav-item:focus-visible {
+  outline: 3px solid #0d87d5;
+  outline-offset: 2px;
+}
+
+@media (max-width: 1024px) {
+  .side-nav {
+    width: 100%;
+    min-height: auto;
+  }
+
+  .brand-title {
+    font-size: 17px;
+  }
+
+  .brand-subtitle {
+    font-size: 12px;
+  }
+
+  .section-label {
+    font-size: 11px;
+  }
+
+  .nav-item {
+    font-size: 13px;
+  }
+}
