@@ -4,16 +4,13 @@
 
 h1 {
 	margin: 0 0 16px;
-	font-size: 20px;
+	font-size: 22px;
+	color: #1a283f;
 }
 
-pre {
-	margin: 0;
-	padding: 16px;
-	border-radius: 10px;
-	border: 1px solid #d8e1ee;
-	background: #f5f8fc;
-	overflow: auto;
-	font-size: 13px;
-	line-height: 1.4;
+.card-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+	gap: 16px;
+	align-items: start;
 }

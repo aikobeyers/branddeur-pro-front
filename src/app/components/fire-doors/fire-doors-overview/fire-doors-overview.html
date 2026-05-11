@@ -1,8 +1,16 @@
 <section class="fire-doors-overview">
-	<h1>Branddeuren overzicht</h1>
+	<h1>Branddeuren Overzicht</h1>
 
 	@if (branddeuren$ | async; as branddeuren) {
-		<pre>{{ branddeuren | json }}</pre>
+		@if (branddeuren.length === 0) {
+			<p>Geen branddeuren gevonden.</p>
+		} @else {
+			<div class="card-grid">
+				@for (branddeur of branddeuren; track branddeur._id) {
+					<app-firedoor-card [branddeur]="branddeur" />
+				}
+			</div>
+		}
 	} @else {
 		<p>Laden...</p>
 	}

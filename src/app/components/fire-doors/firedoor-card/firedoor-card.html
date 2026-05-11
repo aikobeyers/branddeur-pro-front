@@ -1,0 +1,42 @@
+<article class="firedoor-card">
+  <header class="card-header">
+    <h2 class="card-title">{{ branddeur().name }}</h2>
+
+    <span class="status-pill" [class.status-approved]="isApproved()">
+      {{ statusLabel() }}
+    </span>
+  </header>
+
+  <div class="chip-row">
+    <span class="chip">{{ doorTypeLabel() }}</span>
+    <span class="chip">{{ resistanceLabel() }}</span>
+  </div>
+
+  <div class="detail-row detail-row--split">
+    <span class="detail-icon icon-building" aria-hidden="true"></span>
+    <p class="detail-text detail-col">{{ buildingLabel() }}</p>
+    <p class="detail-text detail-col">{{ floorLabel() }}</p>
+  </div>
+
+  <div class="detail-row">
+    <span class="detail-icon icon-location" aria-hidden="true"></span>
+    <p class="detail-text detail-wide">{{ locationLabel() }}</p>
+  </div>
+
+  <div class="detail-row detail-row--inspection">
+    <span class="detail-icon icon-clock" aria-hidden="true"></span>
+    <p class="detail-text">Volgende inspectie:</p>
+    <p class="detail-date">{{ inspectionDateLabel() }}</p>
+  </div>
+
+  <p class="manufacturer">Fabrikant: {{ manufacturerLabel() }}</p>
+
+  <footer class="card-footer">
+    <button class="edit-button" type="button">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M3 17.25V21H6.75L17.8 9.95L14.05 6.2L3 17.25ZM20.71 7.04C21.1 6.65 21.1 6.02 20.71 5.63L18.37 3.29C17.98 2.9 17.35 2.9 16.96 3.29L15.13 5.12L18.88 8.87L20.71 7.04Z" />
+      </svg>
+      Bewerken
+    </button>
+  </footer>
+</article>

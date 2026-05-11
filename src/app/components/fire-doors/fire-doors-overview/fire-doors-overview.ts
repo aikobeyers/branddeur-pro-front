@@ -1,13 +1,14 @@
-import { AsyncPipe, JsonPipe } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { Component } from '@angular/core';
 import { Observable } from 'rxjs';
 
+import { FiredoorCard } from '../firedoor-card/firedoor-card';
 import { Branddeur } from '../../../models/branddeur';
 import { BranddeurenService } from '../../../services/branddeuren.service';
 
 @Component({
   selector: 'app-fire-doors-overview',
-  imports: [AsyncPipe, JsonPipe],
+  imports: [AsyncPipe, FiredoorCard],
   templateUrl: './fire-doors-overview.html',
   styleUrl: './fire-doors-overview.scss',
 })
