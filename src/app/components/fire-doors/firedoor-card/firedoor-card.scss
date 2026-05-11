@@ -30,18 +30,33 @@
 
 .status-pill {
   border-radius: 999px;
-  background: #edf1f6;
-  color: #5d6e85;
   padding: 6px 11px;
   font-size: 11px;
   font-weight: 700;
   line-height: 1;
   white-space: nowrap;
+  background: #e8eef8;
+  color: #486fa0;
 }
 
 .status-pill.status-approved {
-  background: #d8f4e1;
-  color: #2f8b51;
+  background: #d4f0dd;
+  color: #0b6d3e;
+}
+
+.status-pill.status-warning {
+  background: #fef5e8;
+  color: #b8600a;
+}
+
+.status-pill.status-error {
+  background: #f9e5e5;
+  color: #ae2f2f;
+}
+
+.status-pill.status-unknown {
+  background: #e8eef8;
+  color: #486fa0;
 }
 
 .chip-row {

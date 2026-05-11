@@ -2,7 +2,13 @@
   <header class="card-header">
     <h2 class="card-title">{{ branddeur().name }}</h2>
 
-    <span class="status-pill" [class.status-approved]="isApproved()">
+    <span 
+      class="status-pill"
+      [class.status-approved]="statusClass() === 'status-approved'"
+      [class.status-warning]="statusClass() === 'status-warning'"
+      [class.status-error]="statusClass() === 'status-error'"
+      [class.status-unknown]="statusClass() === 'status-unknown'"
+    >
       {{ statusLabel() }}
     </span>
   </header>

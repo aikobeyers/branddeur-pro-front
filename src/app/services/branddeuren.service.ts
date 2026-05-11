@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import { environment } from '../../environments/environment';
-import { Branddeur } from '../models/branddeur';
+import { Branddeur, CreateBranddeurRequest } from '../models/branddeur';
 
 const BASE_URL: string = environment.baseUrl;
 
@@ -15,5 +15,9 @@ export class BranddeurenService {
 
   public getAllBranddeuren(): Observable<Branddeur[]> {
     return this.http.get<Branddeur[]>(BASE_URL);
+  }
+
+  public createBranddeur(request: CreateBranddeurRequest): Observable<Branddeur> {
+    return this.http.post<Branddeur>(BASE_URL, request);
   }
 }

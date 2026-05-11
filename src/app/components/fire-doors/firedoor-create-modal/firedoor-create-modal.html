@@ -1,0 +1,85 @@
+<div class="modal-backdrop" (click)="onBackdropClick()">
+  <section class="modal-panel" role="dialog" aria-modal="true" aria-label="Nieuwe branddeur" (click)="$event.stopPropagation()">
+    <header class="panel-header">
+      <h2>Nieuwe Branddeur</h2>
+      <button type="button" class="close-button" aria-label="Sluiten" (click)="onCancel()">x</button>
+    </header>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="panel-form">
+      <label>
+        <span>Naam</span>
+        <input type="text" formControlName="name" placeholder="Bijv. BD-010" />
+      </label>
+
+      <div class="two-col">
+        <label>
+          <span>Status</span>
+          <select formControlName="statusCode">
+            <option value="" disabled selected hidden>Selecteer status</option>
+            @for (option of statusOptions; track option.code) {
+              <option [value]="option.code">{{ option.label }}</option>
+            }
+          </select>
+        </label>
+
+        <label>
+          <span>Type deur</span>
+          <input type="text" formControlName="doorType" placeholder="Bijv. Enkele Deur" />
+        </label>
+      </div>
+
+      <div class="two-col">
+        <label>
+          <span>Weerstand (min)</span>
+          <input type="number" min="0" formControlName="resistanceMinutes" />
+        </label>
+
+        <label>
+          <span>Verdieping</span>
+          <input type="text" formControlName="floor" placeholder="Bijv. Begane grond" />
+        </label>
+      </div>
+
+      <label>
+        <span>Gebouw</span>
+        <input type="text" formControlName="building" placeholder="Bijv. Hoofdgebouw A" />
+      </label>
+
+      <label>
+        <span>Locatie</span>
+        <input type="text" formControlName="location" placeholder="Bijv. Gang Zuid, kamer 101-102" />
+      </label>
+
+      <div class="two-col">
+        <label>
+          <span>Volgende inspectie</span>
+          <input type="date" formControlName="nextInspectionDate" />
+        </label>
+
+        <label>
+          <span>Fabrikant</span>
+          <input type="text" formControlName="manufacturer" placeholder="Bijv. ASSA ABLOY" />
+        </label>
+      </div>
+
+      @if (form.controls.name.touched && form.controls.name.invalid) {
+        <p class="error-text">Naam is verplicht.</p>
+      }
+
+      @if (submitError()) {
+        <p class="error-text">{{ submitError() }}</p>
+      }
+
+      <footer class="panel-actions">
+        <button type="button" class="ghost" (click)="onCancel()" [disabled]="isSubmitting()">Annuleren</button>
+        <button type="submit" class="primary" [disabled]="isSubmitting()">
+          @if (isSubmitting()) {
+            Opslaan...
+          } @else {
+            Opslaan
+          }
+        </button>
+      </footer>
+    </form>
+  </section>
+</div>

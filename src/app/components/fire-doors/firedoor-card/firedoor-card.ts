@@ -11,7 +11,7 @@ import { Branddeur } from '../../../models/branddeur';
 export class FiredoorCard {
   public readonly branddeur = input.required<Branddeur>();
 
-  protected readonly statusLabel = computed(() => this.branddeur().status?.trim() || 'Onbekend');
+  protected readonly statusLabel = computed(() => this.branddeur().status?.statusValue || 'Onbekend');
 
   protected readonly doorTypeLabel = computed(() => this.branddeur().doorType?.trim() || 'Onbekend');
 
@@ -46,6 +46,20 @@ export class FiredoorCard {
       month: 'short',
       year: 'numeric'
     }).format(date);
+  });
+
+  protected readonly statusClass = computed(() => {
+    const statusCode = this.branddeur().status?.statusCode;
+    switch (statusCode) {
+      case 'A':
+        return 'status-approved';
+      case 'B':
+        return 'status-warning';
+      case 'C':
+        return 'status-error';
+      default:
+        return 'status-unknown';
+    }
   });
 
   protected readonly isApproved = computed(() => {

@@ -15,11 +15,15 @@
 			</div>
 		</div>
 
-		<button class="new-firedoor-button" type="button">
+		<button class="new-firedoor-button" type="button" (click)="openCreateModal()">
 			<span class="plus" aria-hidden="true">+</span>
 			Nieuwe Branddeur
 		</button>
 	</header>
+
+	@if (isCreateModalOpen()) {
+		<app-firedoor-create-modal (close)="closeCreateModal()" (created)="handleCreated()" />
+	}
 
 	@if (branddeurenResource.isLoading()) {
 		<p>Laden...</p>
