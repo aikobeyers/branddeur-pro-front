@@ -21,17 +21,21 @@
 		</button>
 	</header>
 
-	@if (branddeuren$ | async; as branddeuren) {
-		@if (branddeuren.length === 0) {
+	@if (branddeurenResource.isLoading()) {
+		<p>Laden...</p>
+	} @else if (branddeurenResource.error()) {
+		<p>Er ging iets mis bij het laden van branddeuren.</p>
+	} @else if (branddeurenResource.hasValue()) {
+		@if (branddeurenResource.value().length === 0) {
 			<p>Geen branddeuren gevonden.</p>
 		} @else {
 			<div class="card-grid">
-				@for (branddeur of branddeuren; track branddeur._id) {
+				@for (branddeur of branddeurenResource.value(); track branddeur._id) {
 					<app-firedoor-card [branddeur]="branddeur" />
 				}
 			</div>
 		}
 	} @else {
-		<p>Laden...</p>
+		<p>Geen data beschikbaar.</p>
 	}
 </section>
