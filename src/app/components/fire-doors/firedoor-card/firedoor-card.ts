@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 
 import { Branddeur } from '../../../models/branddeur';
 
@@ -10,6 +10,7 @@ import { Branddeur } from '../../../models/branddeur';
 })
 export class FiredoorCard {
   public readonly branddeur = input.required<Branddeur>();
+  public readonly edit = output<Branddeur>();
 
   protected readonly statusLabel = computed(() => this.branddeur().status?.statusValue || 'Onbekend');
 
@@ -66,4 +67,8 @@ export class FiredoorCard {
     const status = this.statusLabel().toLowerCase();
     return status.includes('goedgekeurd') || status.includes('approved');
   });
+
+  protected onEditClick(): void {
+    this.edit.emit(this.branddeur());
+  }
 }

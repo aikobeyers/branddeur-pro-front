@@ -20,4 +20,8 @@ export class BranddeurenService {
   public createBranddeur(request: CreateBranddeurRequest): Observable<Branddeur> {
     return this.http.post<Branddeur>(BASE_URL, request);
   }
+
+  public updateBranddeur(id: string, request: CreateBranddeurRequest): Observable<Branddeur> {
+    return this.http.put<Branddeur>(`${BASE_URL}/${id}`, request);
+  }
 }

@@ -21,25 +21,28 @@
 		</button>
 	</header>
 
-	@if (isCreateModalOpen()) {
-		<app-firedoor-create-modal (close)="closeCreateModal()" (created)="handleCreated()" />
+	@if (isModalOpen()) {
+		<app-firedoor-create-modal 
+			[branddeurToEdit]="branddeurToEdit()"
+			(close)="closeModal()" 
+			(created)="handleCreated()" />
 	}
 
-	@if (branddeurenResource.isLoading()) {
-		<p>Laden...</p>
-	} @else if (branddeurenResource.error()) {
-		<p>Er ging iets mis bij het laden van branddeuren.</p>
-	} @else if (branddeurenResource.hasValue()) {
-		@if (branddeurenResource.value().length === 0) {
-			<p>Geen branddeuren gevonden.</p>
-		} @else {
-			<div class="card-grid">
-				@for (branddeur of branddeurenResource.value(); track branddeur._id) {
-					<app-firedoor-card [branddeur]="branddeur" />
-				}
-			</div>
-		}
+@if (branddeurenResource.isLoading()) {
+	<p>Laden...</p>
+} @else if (branddeurenResource.error()) {
+	<p>Er ging iets mis bij het laden van branddeuren.</p>
+} @else if (branddeurenResource.hasValue()) {
+	@if (branddeurenResource.value().length === 0) {
+		<p>Geen branddeuren gevonden.</p>
 	} @else {
-		<p>Geen data beschikbaar.</p>
+		<div class="card-grid">
+			@for (branddeur of branddeurenResource.value(); track branddeur._id) {
+				<app-firedoor-card [branddeur]="branddeur" (edit)="openEditModal($event)" />
+			}
+		</div>
 	}
+} @else {
+	<p>Geen data beschikbaar.</p>
+}
 </section>

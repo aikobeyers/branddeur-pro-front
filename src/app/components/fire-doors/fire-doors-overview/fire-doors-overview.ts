@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, Injector } from '@angular/core';
 import { httpResource } from '@angular/common/http';
 import { signal } from '@angular/core';
 
@@ -15,23 +15,47 @@ import { environment } from '../../../../environments/environment';
   styleUrl: './fire-doors-overview.scss',
 })
 export class FireDoorsOverview {
-  protected readonly isCreateModalOpen = signal(false);
+  private readonly injector = inject(Injector);
+  protected readonly isModalOpen = signal(false);
+  protected readonly branddeurToEdit = signal<Branddeur | null>(null);
 
   protected readonly branddeurenResource = httpResource<Branddeur[]>(() => ({
     url: environment.baseUrl,
     method: 'GET'
   }));
 
-  protected openCreateModal(): void {
-    this.isCreateModalOpen.set(true);
+  public constructor() {
+    // Prevent body scroll when modal is open
+    effect(() => {
+      const modalOpen = this.isModalOpen();
+      if (typeof document !== 'undefined') {
+        if (modalOpen) {
+          document.documentElement.style.overflow = 'hidden';
+        } else {
+          document.documentElement.style.overflow = '';
+        }
+      }
+    }, { injector: this.injector });
   }
 
-  protected closeCreateModal(): void {
-    this.isCreateModalOpen.set(false);
+  protected openCreateModal(): void {
+    this.branddeurToEdit.set(null);
+    this.isModalOpen.set(true);
+  }
+
+  protected openEditModal(branddeur: Branddeur): void {
+    this.branddeurToEdit.set(branddeur);
+    this.isModalOpen.set(true);
+  }
+
+  protected closeModal(): void {
+    this.isModalOpen.set(false);
+    this.branddeurToEdit.set(null);
   }
 
   protected handleCreated(): void {
-    this.isCreateModalOpen.set(false);
+    this.isModalOpen.set(false);
+    this.branddeurToEdit.set(null);
     this.branddeurenResource.reload();
   }
 }
