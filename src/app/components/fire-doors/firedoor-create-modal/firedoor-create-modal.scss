@@ -49,6 +49,14 @@ h2 {
   color: #4b5d77;
   display: grid;
   place-items: center;
+  cursor: pointer;
+  transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease;
+}
+
+.close-button:hover {
+  background: #f6f9fd;
+  border-color: #c8d5e5;
+  color: #2f3f57;
 }
 
 .panel-form {
@@ -150,6 +158,7 @@ button {
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
+  transition: transform 160ms ease, box-shadow 160ms ease, background-color 160ms ease, border-color 160ms ease;
 }
 
 button.ghost {
@@ -162,6 +171,16 @@ button.primary {
   background: linear-gradient(180deg, #ff851f 0%, #ff6f08 100%);
   color: #ffffff;
   box-shadow: 0 2px 8px rgba(255, 111, 8, 0.35);
+}
+
+button.ghost:hover:not(:disabled) {
+  background: #f6f9fd;
+  border-color: #c2d2e6;
+}
+
+button.primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 5px 12px rgba(255, 111, 8, 0.4);
 }
 
 button:disabled {

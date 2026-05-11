@@ -69,7 +69,14 @@ h1 {
 	align-items: center;
 	gap: 8px;
 	white-space: nowrap;
-    cursor: pointer;
+	cursor: pointer;
+	transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
+}
+
+.new-firedoor-button:hover {
+	transform: translateY(-1px);
+	box-shadow: 0 5px 12px rgba(255, 111, 8, 0.4);
+	filter: saturate(1.05);
 }
 
 .plus {

@@ -177,6 +177,14 @@
   justify-content: center;
   gap: 8px;
   cursor: pointer;
+  transition: transform 160ms ease, box-shadow 160ms ease, background-color 160ms ease, border-color 160ms ease;
+}
+
+.edit-button:hover {
+  background: #f8fbff;
+  border-color: #c6d3e3;
+  box-shadow: 0 3px 10px rgba(20, 44, 74, 0.08);
+  transform: translateY(-1px);
 }
 
 .edit-button svg {
