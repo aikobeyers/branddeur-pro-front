@@ -20,7 +20,7 @@ export class FireDoorsOverview {
   protected readonly branddeurToEdit = signal<Branddeur | null>(null);
 
   protected readonly branddeurenResource = httpResource<Branddeur[]>(() => ({
-    url: environment.baseUrl,
+    url: `${environment.baseUrl}/branddeuren`,
     method: 'GET'
   }));
 

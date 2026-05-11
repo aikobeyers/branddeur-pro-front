@@ -6,6 +6,7 @@ import { environment } from '../../environments/environment';
 import { Branddeur, CreateBranddeurRequest } from '../models/branddeur';
 
 const BASE_URL: string = environment.baseUrl;
+const BRANDDEUREN_SUFFIX: string = '/branddeuren';
 
 @Injectable({
   providedIn: 'root'
@@ -14,14 +15,14 @@ export class BranddeurenService {
   private readonly http = inject(HttpClient);
 
   public getAllBranddeuren(): Observable<Branddeur[]> {
-    return this.http.get<Branddeur[]>(BASE_URL);
+    return this.http.get<Branddeur[]>(`${BASE_URL}${BRANDDEUREN_SUFFIX}`);
   }
 
   public createBranddeur(request: CreateBranddeurRequest): Observable<Branddeur> {
-    return this.http.post<Branddeur>(BASE_URL, request);
+    return this.http.post<Branddeur>(`${BASE_URL}${BRANDDEUREN_SUFFIX}`, request);
   }
 
   public updateBranddeur(id: string, request: CreateBranddeurRequest): Observable<Branddeur> {
-    return this.http.put<Branddeur>(`${BASE_URL}/${id}`, request);
+    return this.http.put<Branddeur>(`${BASE_URL}${BRANDDEUREN_SUFFIX}/${id}`, request);
   }
 }
