@@ -11,22 +11,10 @@
         <input type="text" formControlName="name" placeholder="Bijv. BD-010" />
       </label>
 
-      <div class="two-col">
-        <label>
-          <span>Status</span>
-          <select formControlName="statusCode">
-            <option value="" disabled selected hidden>Selecteer status</option>
-            @for (option of statusOptions; track option.code) {
-              <option [value]="option.code">{{ option.label }}</option>
-            }
-          </select>
-        </label>
-
-        <label>
-          <span>Type deur</span>
-          <input type="text" formControlName="doorType" placeholder="Bijv. Enkele Deur" />
-        </label>
-      </div>
+      <label>
+        <span>Type deur</span>
+        <input type="text" formControlName="doorType" placeholder="Bijv. Enkele Deur" />
+      </label>
 
       <div class="two-col">
         <label>

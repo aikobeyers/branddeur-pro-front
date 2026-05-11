@@ -4,19 +4,7 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { fromEvent } from 'rxjs';
 
 import { BranddeurenService } from '../../../services/branddeuren.service';
-import { Branddeur, BranddeurStatus } from '../../../models/branddeur';
-
-const STATUS_MAPPING: Record<string, BranddeurStatus> = {
-  'A': { statusCode: 'A', statusValue: 'Goedgekeurd' },
-  'B': { statusCode: 'B', statusValue: 'Herstel nodig' },
-  'C': { statusCode: 'C', statusValue: 'Afgekeurd' }
-};
-
-const STATUS_OPTIONS = [
-  { code: 'A', label: 'Goedgekeurd' },
-  { code: 'B', label: 'Herstel nodig' },
-  { code: 'C', label: 'Afgekeurd' }
-];
+import { Branddeur } from '../../../models/branddeur';
 
 @Component({
   selector: 'app-firedoor-create-modal',
@@ -37,12 +25,10 @@ export class FiredoorCreateModal {
 
   protected readonly isSubmitting = signal(false);
   protected readonly submitError = signal<string | null>(null);
-  protected readonly statusOptions = STATUS_OPTIONS;
   protected readonly isEditMode = signal(false);
 
   protected readonly form = this.formBuilder.nonNullable.group({
     name: ['', [Validators.required, Validators.maxLength(64)]],
-    statusCode: ['', [Validators.required]],
     doorType: ['', [Validators.maxLength(64)]],
     resistanceMinutes: [null as number | null],
     building: ['', [Validators.maxLength(64)]],
@@ -58,22 +44,9 @@ export class FiredoorCreateModal {
       const branddeur = this.branddeurToEdit();
       if (branddeur) {
         this.isEditMode.set(true);
-        
-        // Determine status code - handle both string and object formats
-        let statusCode = '';
-        const status = branddeur.status;
-        if (typeof status === 'string') {
-          // Map old string format to codes
-          if (status === 'Goedgekeurd') statusCode = 'A';
-          else if (status === 'Herstel nodig') statusCode = 'B';
-          else if (status === 'Afgekeurd') statusCode = 'C';
-        } else {
-          statusCode = status?.statusCode || '';
-        }
-        
+
         this.form.patchValue({
           name: branddeur.name,
-          statusCode: statusCode,
           doorType: branddeur.doorType || '',
           resistanceMinutes: branddeur.resistanceMinutes || null,
           building: branddeur.building || '',
@@ -122,12 +95,10 @@ export class FiredoorCreateModal {
     }
 
     const rawValue = this.form.getRawValue();
-    const statusCode = rawValue.statusCode as 'A' | 'B' | 'C';
     this.isSubmitting.set(true);
 
     const payload = {
       name: rawValue.name.trim(),
-      status: STATUS_MAPPING[statusCode],
       doorType: this.normalizeOptional(rawValue.doorType),
       resistanceMinutes: rawValue.resistanceMinutes ?? undefined,
       building: this.normalizeOptional(rawValue.building),
