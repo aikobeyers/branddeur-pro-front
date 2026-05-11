@@ -21,12 +21,12 @@
   <div class="detail-row detail-row--split">
     <span class="detail-icon icon-building" aria-hidden="true"></span>
     <p class="detail-text detail-col">{{ buildingLabel() }}</p>
-    <p class="detail-text detail-col">{{ floorLabel() }}</p>
   </div>
 
-  <div class="detail-row">
+  <div class="detail-row detail-row--split">
     <span class="detail-icon icon-location" aria-hidden="true"></span>
-    <p class="detail-text detail-wide">{{ locationLabel() }}</p>
+    <p class="detail-text detail-col">{{ floorLabel() }}</p>
+    <p class="detail-text detail-col">{{ locationLabel() }}</p>
   </div>
 
   <div class="detail-row detail-row--inspection">
