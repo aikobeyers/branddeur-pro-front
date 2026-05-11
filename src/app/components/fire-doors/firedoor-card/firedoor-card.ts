@@ -13,12 +13,11 @@ export class FiredoorCard {
   public readonly edit = output<Branddeur>();
 
   protected readonly statusLabel = computed(() => {
-    const status = this.branddeur().status;
-    // Handle both old (string) and new (object) API formats
-    if (typeof status === 'string') {
-      return status || 'Onbekend';
+    const inspection = this.branddeur().mostRecentInspection;
+    if (inspection && inspection.inspectionResult) {
+      return inspection.inspectionResult.statusValue || 'Onbekend';
     }
-    return status?.statusValue || 'Onbekend';
+    return 'Onbekend';
   });
 
   protected readonly doorTypeLabel = computed(() => this.branddeur().doorType?.trim() || 'Onbekend');
@@ -57,27 +56,12 @@ export class FiredoorCard {
   });
 
   protected readonly statusClass = computed(() => {
-    const status = this.branddeur().status;
-    // Handle both old (string) and new (object) API formats
-    if (typeof status === 'string') {
-      // Map old string format to status classes
-      if (status === 'Goedgekeurd') return 'status-approved';
-      if (status === 'Herstel nodig') return 'status-warning';
-      if (status === 'Afgekeurd') return 'status-error';
-      return 'status-unknown';
-    }
-    // Handle new object format
-    const statusCode = status?.statusCode;
-    switch (statusCode) {
-      case 'A':
-        return 'status-approved';
-      case 'B':
-        return 'status-warning';
-      case 'C':
-        return 'status-error';
-      default:
-        return 'status-unknown';
-    }
+    const inspection = this.branddeur().mostRecentInspection;
+    const statusCode = inspection?.inspectionResult?.statusCode;
+    if (statusCode === 'A') return 'status-approved';
+    if (statusCode === 'B') return 'status-warning';
+    if (statusCode === 'C') return 'status-error';
+    return 'status-unknown';
   });
 
   protected readonly isApproved = computed(() => {

@@ -1,12 +1,15 @@
+import { BranddeurInspectie } from "./branddeur-inspectie";
+
 export interface BranddeurStatus {
   statusCode: 'A' | 'B' | 'C';
-  statusValue: 'Goedgekeurd' | 'Herstel nodig' | 'Afgekeurd';
+  statusValue: string;
 }
 
 export interface Branddeur {
   _id: string;
   name: string;
-  status?: BranddeurStatus | string;
+  status?: BranddeurStatus;
+  mostRecentInspection?: BranddeurInspectie;
   doorType?: string;
   resistanceMinutes?: number;
   building?: string;
@@ -18,7 +21,6 @@ export interface Branddeur {
 
 export interface CreateBranddeurRequest {
   name: string;
-  status?: BranddeurStatus;
   doorType?: string;
   resistanceMinutes?: number;
   building?: string;
