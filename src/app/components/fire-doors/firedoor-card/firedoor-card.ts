@@ -12,7 +12,14 @@ export class FiredoorCard {
   public readonly branddeur = input.required<Branddeur>();
   public readonly edit = output<Branddeur>();
 
-  protected readonly statusLabel = computed(() => this.branddeur().status?.statusValue || 'Onbekend');
+  protected readonly statusLabel = computed(() => {
+    const status = this.branddeur().status;
+    // Handle both old (string) and new (object) API formats
+    if (typeof status === 'string') {
+      return status || 'Onbekend';
+    }
+    return status?.statusValue || 'Onbekend';
+  });
 
   protected readonly doorTypeLabel = computed(() => this.branddeur().doorType?.trim() || 'Onbekend');
 
@@ -50,7 +57,17 @@ export class FiredoorCard {
   });
 
   protected readonly statusClass = computed(() => {
-    const statusCode = this.branddeur().status?.statusCode;
+    const status = this.branddeur().status;
+    // Handle both old (string) and new (object) API formats
+    if (typeof status === 'string') {
+      // Map old string format to status classes
+      if (status === 'Goedgekeurd') return 'status-approved';
+      if (status === 'Herstel nodig') return 'status-warning';
+      if (status === 'Afgekeurd') return 'status-error';
+      return 'status-unknown';
+    }
+    // Handle new object format
+    const statusCode = status?.statusCode;
     switch (statusCode) {
       case 'A':
         return 'status-approved';

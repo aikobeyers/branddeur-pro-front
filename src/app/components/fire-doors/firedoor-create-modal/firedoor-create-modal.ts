@@ -58,9 +58,22 @@ export class FiredoorCreateModal {
       const branddeur = this.branddeurToEdit();
       if (branddeur) {
         this.isEditMode.set(true);
+        
+        // Determine status code - handle both string and object formats
+        let statusCode = '';
+        const status = branddeur.status;
+        if (typeof status === 'string') {
+          // Map old string format to codes
+          if (status === 'Goedgekeurd') statusCode = 'A';
+          else if (status === 'Herstel nodig') statusCode = 'B';
+          else if (status === 'Afgekeurd') statusCode = 'C';
+        } else {
+          statusCode = status?.statusCode || '';
+        }
+        
         this.form.patchValue({
           name: branddeur.name,
-          statusCode: branddeur.status?.statusCode || '',
+          statusCode: statusCode,
           doorType: branddeur.doorType || '',
           resistanceMinutes: branddeur.resistanceMinutes || null,
           building: branddeur.building || '',

@@ -6,7 +6,7 @@ export interface BranddeurStatus {
 export interface Branddeur {
   _id: string;
   name: string;
-  status?: BranddeurStatus;
+  status?: BranddeurStatus | string;
   doorType?: string;
   resistanceMinutes?: number;
   building?: string;
