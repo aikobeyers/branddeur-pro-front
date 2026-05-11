@@ -1,0 +1,136 @@
+<div class="new-inspection">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="inspection-form">
+    <!-- Basis Informatie Section -->
+    <section class="form-section">
+      <h2>Basis informatie</h2>
+
+      <div class="form-grid form-grid--2col">
+        <label>
+          <span>Branddeur <span class="required">*</span></span>
+          <select formControlName="branddeurId">
+            <option value="" disabled selected hidden>Selecteer een branddeur</option>
+            @if (branddeurenResource.hasValue()) {
+              @for (branddeur of branddeurenResource.value(); track branddeur._id) {
+                <option [value]="branddeur._id">{{ branddeur.name }}</option>
+              }
+            }
+          </select>
+        </label>
+
+        <label>
+          <span>Inspecteur <span class="required">*</span></span>
+          <input type="text" formControlName="inspectorName" placeholder="Naam van de inspecteur" />
+        </label>
+      </div>
+
+      <div class="form-grid form-grid--2col">
+        <label>
+          <span>Inspectie datum <span class="required">*</span></span>
+          <input type="date" formControlName="inspectionDate" />
+        </label>
+
+        <label>
+          <span>Type inspectie</span>
+          <select formControlName="inspectionType">
+            <option value="Routine Inspectie">Routine Inspectie</option>
+            <option value="Vervolgings Inspectie">Vervolgings Inspectie</option>
+            <option value="Onverwachte Inspectie">Onverwachte Inspectie</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="form-grid form-grid--2col">
+        <label>
+          <span>Volgende inspectie</span>
+          <input type="date" formControlName="nextInspection" />
+        </label>
+      </div>
+    </section>
+
+    <!-- Inspectie Checklist Section -->
+    <section class="form-section">
+      <h2>Inspectie checklist <span class="warning-icon" aria-label="Let op">⚠</span></h2>
+
+      <div class="checklist-grid">
+        @if (checklistItems().length > 0) {
+          @for (item of checklistItems(); track item._id) {
+            <label class="checkbox-item" [class.damage-check]="item.damageCheck">
+              <input 
+                type="checkbox" 
+                [formControl]="getChecklistControl(item._id)!" 
+              />
+              <span>{{ item.displayValue }}</span>
+            </label>
+          }
+        }
+      </div>
+    </section>
+
+    <!-- Algemene Staat van de Deur Section -->
+    <section class="form-section">
+      <h2>Algemene staat van de deur</h2>
+
+      <label>
+        <span>Status</span>
+          <select formControlName="generalCondition">
+          <option value="Goed">Goed</option>
+          <option value="Matig">Matig</option>
+          <option value="Slecht">Slecht</option>
+        </select>
+      </label>
+    </section>
+
+    <!-- Inspectie Resultaat Section -->
+    <section class="form-section">
+      <h2>Inspectie resultaat</h2>
+
+      <label>
+        <span>Resultaat</span>
+        <select formControlName="inspectionResult">
+          <option value="A">Goedgekeurd</option>
+          <option value="B">Herstel nodig</option>
+          <option value="C">Afgekeurd</option>
+        </select>
+      </label>
+    </section>
+
+    <!-- Gevonden Problemen Section -->
+    <section class="form-section">
+      <h2>Gevonden problemen</h2>
+
+      <div class="problem-input-group">
+        <textarea 
+          #problemTextarea
+          placeholder="Beschrijf een probleem..."
+          rows="4"
+        ></textarea>
+        <button type="button" class="add-button" (click)="addProblem(problemTextarea.value); problemTextarea.value = ''">
+          Toevoegen
+        </button>
+      </div>
+
+      @if (problems().length > 0) {
+        <div class="problems-list">
+          @for (problem of problems(); track $index) {
+            <div class="problem-item">
+              <span>{{ problem }}</span>
+              <button 
+                type="button" 
+                class="remove-button" 
+                (click)="removeProblem($index)"
+                aria-label="Verwijder probleem"
+              >
+                ×
+              </button>
+            </div>
+          }
+        </div>
+      }
+    </section>
+
+    <!-- Form Actions -->
+    <div class="form-actions">
+      <button type="submit" class="primary-button">Inspectie Opslaan</button>
+    </div>
+  </form>
+</div>

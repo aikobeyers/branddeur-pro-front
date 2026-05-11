@@ -15,7 +15,7 @@
   <section class="nav-section" aria-label="Navigatie">
     <p class="section-label">NAVIGATIE</p>
 
-    <a class="nav-item active" routerLink="branddeuren-overzicht" aria-current="page">
+    <a class="nav-item" routerLink="branddeuren-overzicht" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
       <span class="item-icon" aria-hidden="true">
         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M6 5H17C17.55 5 18 5.45 18 6V18C18 18.55 17.55 19 17 19H6C5.45 19 5 18.55 5 18V6C5 5.45 5.45 5 6 5Z" stroke="currentColor" stroke-width="1.8"/>
@@ -25,6 +25,17 @@
       </span>
 
       <span class="item-text">Branddeuren</span>
+    </a>
+
+    <a class="nav-item" routerLink="new-inspection" routerLinkActive="active">
+      <span class="item-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2Z" stroke="currentColor" stroke-width="1.8"/>
+          <path d="M12 6V12L16 14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </span>
+
+      <span class="item-text">Nieuwe inspectie</span>
     </a>
   </section>
 </aside>

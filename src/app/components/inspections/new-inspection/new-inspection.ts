@@ -1,0 +1,117 @@
+import { ChangeDetectionStrategy, Component, DestroyRef, effect, inject, Injector, signal } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { httpResource } from '@angular/common/http';
+import { ReactiveFormsModule, FormBuilder, Validators, FormGroup } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+
+import { BranddeurenService } from '../../../services/branddeuren.service';
+import { Branddeur } from '../../../models/branddeur';
+import { InspectieChecklistItem } from '../../../models/inspectie-checklist-item';
+import { environment } from '../../../../environments/environment';
+
+@Component({
+  selector: 'app-new-inspection',
+  standalone: true,
+  imports: [ReactiveFormsModule, CommonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  templateUrl: './new-inspection.html',
+  styleUrl: './new-inspection.scss'
+})
+export class NewInspectionComponent {
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly injector = inject(Injector);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly branddeurenService = inject(BranddeurenService);
+
+  protected readonly isSubmitting = signal(false);
+  protected readonly submitError = signal<string | null>(null);
+  protected readonly submitSuccess = signal(false);
+
+  protected readonly branddeurenResource = httpResource<Branddeur[]>(() => ({
+    url: `${environment.baseUrl}/branddeuren`,
+    method: 'GET'
+  }));
+
+  protected readonly checklistItems = signal<InspectieChecklistItem[]>([]);
+  protected readonly problems = signal<string[]>([]);
+
+  protected readonly form = this.formBuilder.nonNullable.group({
+    branddeurId: ['', [Validators.required]],
+    inspectorName: ['', [Validators.required]],
+    inspectionDate: [new Date().toISOString().split('T')[0], [Validators.required]],
+    inspectionType: ['Routine Inspectie'],
+    nextInspection: [''],
+    checklistItems: this.formBuilder.group({}, { nonNullable: true }),
+    generalCondition: ['Goed'],
+    inspectionResult: ['A'],
+    foundProblems: [[] as string[]]
+  });
+
+  public constructor() {
+    // Set resolved checklist items from route
+    this.checklistItems.set(this.activatedRoute.snapshot.data['checklistItems'] || []);
+
+    // Dynamically add checklist item controls when data loads
+    effect(() => {
+      const items = this.checklistItems();
+      if (items && items.length > 0) {
+        const checklistGroup = this.form.get('checklistItems');
+        if (checklistGroup && checklistGroup instanceof FormGroup) {
+          items.forEach(item => {
+            if (!checklistGroup.get(item._id)) {
+              checklistGroup.addControl(item._id, this.formBuilder.control(false));
+            }
+          });
+        }
+      }
+    }, { injector: this.injector });
+  }
+
+  protected getChecklistControl(itemId: string) {
+    const control = this.form.get('checklistItems')?.get(itemId);
+    return control as any;
+  }
+
+  protected addProblem(problemText: string): void {
+    const trimmedText = problemText.trim();
+    if (trimmedText.length > 0) {
+      this.problems.update(items => [...items, trimmedText]);
+    }
+  }
+
+  protected removeProblem(index: number): void {
+    this.problems.update(items => items.filter((_, i) => i !== index));
+  }
+
+  protected onSubmit(): void {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
+    this.form.patchValue({ foundProblems: this.problems() });
+    this.isSubmitting.set(true);
+    this.submitError.set(null);
+
+
+
+    this.branddeurenService.createInspection(this.form.getRawValue())
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.isSubmitting.set(false);
+          this.submitSuccess.set(true);
+          this.form.reset();
+          this.problems.set([]);
+        },
+        error: (err) => {
+          this.isSubmitting.set(false);
+          this.submitError.set('Er is iets misgegaan. Probeer het opnieuw.');
+          console.error(err);
+        }
+      });
+  }
+}
+
+
