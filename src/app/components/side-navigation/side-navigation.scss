@@ -5,6 +5,8 @@
 .side-nav {
   width: 300px;
   min-height: 100dvh;
+  height: 100dvh;
+  overflow-y: auto;
   background: #f8fafc;
   border-right: 1px solid #e4ebf4;
   box-shadow: inset -1px 0 0 #edf2f8;
@@ -109,7 +111,8 @@
 @media (max-width: 1024px) {
   .side-nav {
     width: 100%;
-    min-height: auto;
+    min-height: 100dvh;
+    height: 100dvh;
   }
 
   .brand-title {
