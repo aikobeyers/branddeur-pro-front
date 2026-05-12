@@ -42,7 +42,7 @@ export class NewInspectionComponent {
     inspectorName: ['', [Validators.required]],
     inspectionDate: [new Date().toISOString().split('T')[0], [Validators.required]],
     inspectionType: ['Routine Inspectie'],
-    nextInspection: [''],
+    nextInspection: ['', [Validators.required]],
     checklistItems: this.formBuilder.group({}, { nonNullable: true }),
     generalCondition: ['Goed'],
     inspectionResult: ['A'],

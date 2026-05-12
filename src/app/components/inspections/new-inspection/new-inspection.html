@@ -15,11 +15,17 @@
               }
             }
           </select>
+          @if (form.controls.branddeurId.touched && form.controls.branddeurId.invalid) {
+            <p class="field-error">Branddeur is verplicht.</p>
+          }
         </label>
 
         <label>
           <span>Inspecteur <span class="required">*</span></span>
           <input type="text" formControlName="inspectorName" placeholder="Naam van de inspecteur" />
+          @if (form.controls.inspectorName.touched && form.controls.inspectorName.invalid) {
+            <p class="field-error">Inspecteur is verplicht.</p>
+          }
         </label>
       </div>
 
@@ -27,6 +33,9 @@
         <label>
           <span>Inspectie datum <span class="required">*</span></span>
           <input type="date" formControlName="inspectionDate" />
+          @if (form.controls.inspectionDate.touched && form.controls.inspectionDate.invalid) {
+            <p class="field-error">Inspectie datum is verplicht.</p>
+          }
         </label>
 
         <label>
@@ -41,8 +50,11 @@
 
       <div class="form-grid form-grid--2col">
         <label>
-          <span>Volgende inspectie</span>
+          <span>Volgende inspectie <span class="required">*</span></span>
           <input type="date" formControlName="nextInspection" />
+          @if (form.controls.nextInspection.touched && form.controls.nextInspection.invalid) {
+            <p class="field-error">Volgende inspectie is verplicht.</p>
+          }
         </label>
       </div>
     </section>
