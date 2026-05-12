@@ -11,6 +11,13 @@
         <input type="text" formControlName="name" placeholder="Bijv. BD-010" />
       </label>
 
+      @if (!isEditMode()) {
+        <label>
+          <span>Eerste inspectie</span>
+          <input type="date" formControlName="initialInspectionDate" />
+        </label>
+      }
+
       <label>
         <span>Type deur</span>
         <input type="text" formControlName="doorType" placeholder="Bijv. Enkele Deur" />
@@ -38,17 +45,10 @@
         <input type="text" formControlName="location" placeholder="Bijv. Gang Zuid, kamer 101-102" />
       </label>
 
-      <div class="two-col">
-        <label>
-          <span>Volgende inspectie</span>
-          <input type="date" formControlName="nextInspectionDate" />
-        </label>
-
-        <label>
-          <span>Fabrikant</span>
-          <input type="text" formControlName="manufacturer" placeholder="Bijv. ASSA ABLOY" />
-        </label>
-      </div>
+      <label>
+        <span>Fabrikant</span>
+        <input type="text" formControlName="manufacturer" placeholder="Bijv. ASSA ABLOY" />
+      </label>
 
       @if (form.controls.name.touched && form.controls.name.invalid) {
         <p class="error-text">Naam is verplicht.</p>

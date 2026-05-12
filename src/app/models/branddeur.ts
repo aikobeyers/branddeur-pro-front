@@ -10,22 +10,22 @@ export interface Branddeur {
   name: string;
   status?: BranddeurStatus;
   mostRecentInspection?: BranddeurInspectie;
+  initialInspectionDate?: string;
   doorType?: string;
   resistanceMinutes?: number;
   building?: string;
   floor?: string;
   location?: string;
-  nextInspectionDate?: string;
   manufacturer?: string;
 }
 
 export interface CreateBranddeurRequest {
   name: string;
+  initialInspectionDate?: string;
   doorType?: string;
   resistanceMinutes?: number;
   building?: string;
   floor?: string;
   location?: string;
-  nextInspectionDate?: string;
   manufacturer?: string;
 }

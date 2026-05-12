@@ -29,12 +29,12 @@ export class FiredoorCreateModal {
 
   protected readonly form = this.formBuilder.nonNullable.group({
     name: ['', [Validators.required, Validators.maxLength(64)]],
+    initialInspectionDate: [''],
     doorType: ['', [Validators.maxLength(64)]],
     resistanceMinutes: [null as number | null],
     building: ['', [Validators.maxLength(64)]],
     floor: ['', [Validators.maxLength(64)]],
     location: ['', [Validators.maxLength(120)]],
-    nextInspectionDate: [''],
     manufacturer: ['', [Validators.maxLength(64)]]
   });
 
@@ -47,12 +47,12 @@ export class FiredoorCreateModal {
 
         this.form.patchValue({
           name: branddeur.name,
+          initialInspectionDate: '',
           doorType: branddeur.doorType || '',
           resistanceMinutes: branddeur.resistanceMinutes || null,
           building: branddeur.building || '',
           floor: branddeur.floor || '',
           location: branddeur.location || '',
-          nextInspectionDate: this.formatDateForInput(branddeur.nextInspectionDate),
           manufacturer: branddeur.manufacturer || ''
         });
       } else {
@@ -104,13 +104,17 @@ export class FiredoorCreateModal {
       building: this.normalizeOptional(rawValue.building),
       floor: this.normalizeOptional(rawValue.floor),
       location: this.normalizeOptional(rawValue.location),
-      nextInspectionDate: this.normalizeOptional(rawValue.nextInspectionDate),
       manufacturer: this.normalizeOptional(rawValue.manufacturer)
+    };
+
+    const createPayload = {
+      ...payload,
+      initialInspectionDate: this.normalizeOptional(rawValue.initialInspectionDate)
     };
 
     const request$ = this.isEditMode() && this.branddeurToEdit()?._id
       ? this.branddeurenService.updateBranddeur(this.branddeurToEdit()!._id, payload)
-      : this.branddeurenService.createBranddeur(payload);
+      : this.branddeurenService.createBranddeur(createPayload);
 
     request$.subscribe({
       next: () => {
@@ -127,13 +131,6 @@ export class FiredoorCreateModal {
   private normalizeOptional(value: string): string | undefined {
     const trimmed = value.trim();
     return trimmed === '' ? undefined : trimmed;
-  }
-
-  private formatDateForInput(dateString: string | undefined | null): string {
-    if (!dateString) return '';
-    const date = new Date(dateString);
-    if (Number.isNaN(date.getTime())) return '';
-    return date.toISOString().split('T')[0];
   }
 
   private resetScrolling(): void {

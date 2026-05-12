@@ -67,6 +67,15 @@ export class NewInspectionComponent {
         }
       }
     }, { injector: this.injector });
+
+    this.form.controls.branddeurId.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((branddeurId) => {
+        const defaultInspectionDate = this.getDefaultInspectionDate(branddeurId);
+        if (defaultInspectionDate) {
+          this.form.controls.inspectionDate.setValue(defaultInspectionDate);
+        }
+      });
   }
 
   protected getChecklistControl(itemId: string) {
@@ -111,6 +120,34 @@ export class NewInspectionComponent {
           console.error(err);
         }
       });
+  }
+
+  private getDefaultInspectionDate(branddeurId: string): string | null {
+    if (!branddeurId || !this.branddeurenResource.hasValue()) {
+      return null;
+    }
+
+    const selectedBranddeur = this.branddeurenResource.value().find(
+      (branddeur) => branddeur._id === branddeurId
+    );
+
+    if (!selectedBranddeur) {
+      return null;
+    }
+
+    const sourceDate = selectedBranddeur.mostRecentInspection?.nextInspection
+      || selectedBranddeur.initialInspectionDate;
+
+    if (!sourceDate) {
+      return null;
+    }
+
+    const date = new Date(sourceDate);
+    if (Number.isNaN(date.getTime())) {
+      return null;
+    }
+
+    return date.toISOString().split('T')[0];
   }
 }
 

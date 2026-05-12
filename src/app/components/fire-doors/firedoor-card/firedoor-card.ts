@@ -35,14 +35,18 @@ export class FiredoorCard {
 
   protected readonly manufacturerLabel = computed(() => this.branddeur().manufacturer?.trim() || '-');
 
-  protected readonly inspectionDateLabel = computed(() => {
-    const nextInspectionDate = this.branddeur().nextInspectionDate;
+  protected readonly hasMostRecentInspection = computed(() => !!this.branddeur().mostRecentInspection);
 
-    if (!nextInspectionDate) {
+  protected readonly inspectionDateLabel = computed(() => {
+    const nextInspectionDate = this.branddeur().mostRecentInspection?.nextInspection;
+    const initialInspectionDate = this.branddeur().initialInspectionDate;
+    const dateToDisplay = nextInspectionDate || initialInspectionDate;
+
+    if (!dateToDisplay) {
       return '-';
     }
 
-    const date = new Date(nextInspectionDate);
+    const date = new Date(dateToDisplay);
 
     if (Number.isNaN(date.getTime())) {
       return '-';
@@ -54,6 +58,10 @@ export class FiredoorCard {
       year: 'numeric'
     }).format(date);
   });
+
+  protected readonly inspectionDateTitle = computed(() =>
+    this.hasMostRecentInspection() ? 'Volgende inspectie:' : 'Eerste inspectie:'
+  );
 
   protected readonly statusClass = computed(() => {
     const inspection = this.branddeur().mostRecentInspection;
