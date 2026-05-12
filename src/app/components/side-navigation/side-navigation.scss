@@ -6,6 +6,9 @@
   width: 300px;
   min-height: 100dvh;
   height: 100dvh;
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
   overflow-y: auto;
   background: #f8fafc;
   border-right: 1px solid #e4ebf4;
@@ -113,6 +116,7 @@
     width: 100%;
     min-height: 100dvh;
     height: 100dvh;
+    position: static;
   }
 
   .brand-title {

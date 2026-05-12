@@ -73,7 +73,7 @@ export class FiredoorCreateModal {
   }
 
   protected onBackdropClick(): void {
-    if (!this.isSubmitting()) {
+    if (!this.isSubmitting() && !this.isEditMode() && !this.form.dirty) {
       this.close.emit();
       this.resetScrolling();
     }
