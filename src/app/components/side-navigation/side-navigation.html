@@ -1,41 +1,117 @@
-<aside class="side-nav" aria-label="Hoofdnavigatie">
-  <header class="brand-header">
-    <div class="brand-icon" aria-hidden="true">
-      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M12 3L19 6V11.5C19 16 15.9 19.9 12 21C8.1 19.9 5 16 5 11.5V6L12 3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
-      </svg>
+<div class="nav-container">
+  <!-- Mobile Header with Hamburger -->
+  <header class="mobile-header">
+    <div class="mobile-header-content">
+      <div class="brand-icon-mobile" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 3L19 6V11.5C19 16 15.9 19.9 12 21C8.1 19.9 5 16 5 11.5V6L12 3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+        </svg>
+      </div>
+
+      <div class="brand-copy-mobile">
+        <p class="brand-title-mobile">BrandDeur Pro</p>
+      </div>
     </div>
 
-    <div class="brand-copy">
-      <p class="brand-title">BrandDeur Pro</p>
-      <p class="brand-subtitle">Inspectie Systeem</p>
-    </div>
+    <button
+      type="button"
+      class="hamburger-menu"
+      (click)="toggleMobileMenu()"
+      [attr.aria-expanded]="isMobileMenuOpen()"
+      aria-label="Toggle navigation menu"
+    >
+      <span class="hamburger-line" [class.open]="isMobileMenuOpen()"></span>
+      <span class="hamburger-line" [class.open]="isMobileMenuOpen()"></span>
+      <span class="hamburger-line" [class.open]="isMobileMenuOpen()"></span>
+    </button>
   </header>
 
-  <section class="nav-section" aria-label="Navigatie">
-    <p class="section-label">NAVIGATIE</p>
-
-    <a class="nav-item" routerLink="branddeuren-overzicht" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
-      <span class="item-icon" aria-hidden="true">
+  <!-- Desktop Sidebar -->
+  <aside class="side-nav" aria-label="Hoofdnavigatie">
+    <header class="brand-header">
+      <div class="brand-icon" aria-hidden="true">
         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M6 5H17C17.55 5 18 5.45 18 6V18C18 18.55 17.55 19 17 19H6C5.45 19 5 18.55 5 18V6C5 5.45 5.45 5 6 5Z" stroke="currentColor" stroke-width="1.8"/>
-          <path d="M9 5V19" stroke="currentColor" stroke-width="1.8"/>
-          <path d="M13 12H14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          <path d="M12 3L19 6V11.5C19 16 15.9 19.9 12 21C8.1 19.9 5 16 5 11.5V6L12 3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
         </svg>
-      </span>
+      </div>
 
-      <span class="item-text">Branddeuren</span>
-    </a>
+      <div class="brand-copy">
+        <p class="brand-title">BrandDeur Pro</p>
+        <p class="brand-subtitle">Inspectie Systeem</p>
+      </div>
+    </header>
 
-    <a class="nav-item" routerLink="new-inspection" routerLinkActive="active">
-      <span class="item-icon" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2Z" stroke="currentColor" stroke-width="1.8"/>
-          <path d="M12 6V12L16 14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-        </svg>
-      </span>
+    <section class="nav-section" aria-label="Navigatie">
+      <p class="section-label">NAVIGATIE</p>
 
-      <span class="item-text">Nieuwe inspectie</span>
-    </a>
-  </section>
-</aside>
+      <a class="nav-item" routerLink="branddeuren-overzicht" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+        <span class="item-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M6 5H17C17.55 5 18 5.45 18 6V18C18 18.55 17.55 19 17 19H6C5.45 19 5 18.55 5 18V6C5 5.45 5.45 5 6 5Z" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M9 5V19" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M13 12H14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </span>
+
+        <span class="item-text">Branddeuren</span>
+      </a>
+
+      <a class="nav-item" routerLink="new-inspection" routerLinkActive="active">
+        <span class="item-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2Z" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M12 6V12L16 14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </span>
+
+        <span class="item-text">Nieuwe inspectie</span>
+      </a>
+    </section>
+  </aside>
+
+  <!-- Mobile Menu Overlay -->
+  <div class="mobile-menu-backdrop" *ngIf="isMobileMenuOpen()" (click)="closeMobileMenu()"></div>
+
+  <!-- Mobile Menu (slides in from left) -->
+  <nav class="mobile-menu" *ngIf="isMobileMenuOpen()" [class.open]="isMobileMenuOpen()">
+    <div class="mobile-nav-content">
+      <section class="nav-section" aria-label="Navigatie">
+        <p class="section-label">NAVIGATIE</p>
+
+        <a
+          class="nav-item"
+          routerLink="branddeuren-overzicht"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: true }"
+          (click)="closeMobileMenu()"
+        >
+          <span class="item-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M6 5H17C17.55 5 18 5.45 18 6V18C18 18.55 17.55 19 17 19H6C5.45 19 5 18.55 5 18V6C5 5.45 5.45 5 6 5Z" stroke="currentColor" stroke-width="1.8"/>
+              <path d="M9 5V19" stroke="currentColor" stroke-width="1.8"/>
+              <path d="M13 12H14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+          </span>
+
+          <span class="item-text">Branddeuren</span>
+        </a>
+
+        <a
+          class="nav-item"
+          routerLink="new-inspection"
+          routerLinkActive="active"
+          (click)="closeMobileMenu()"
+        >
+          <span class="item-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2Z" stroke="currentColor" stroke-width="1.8"/>
+              <path d="M12 6V12L16 14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+          </span>
+
+          <span class="item-text">Nieuwe inspectie</span>
+        </a>
+      </section>
+    </div>
+  </nav>
+</div>

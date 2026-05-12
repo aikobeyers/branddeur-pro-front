@@ -2,9 +2,24 @@
 	min-height: 100dvh;
 	display: flex;
 	background: linear-gradient(140deg, #edf3fb 0%, #f5f8fc 60%, #ecf2f8 100%);
+	flex-direction: column;
+
+	@media (min-width: 1024px) {
+		flex-direction: row;
+	}
 }
 
 .app-content {
 	flex: 1;
 	min-width: 0;
+	overflow-y: auto;
+	padding: 16px;
+
+	@media (min-width: 768px) {
+		padding: 24px;
+	}
+
+	@media (min-width: 1024px) {
+		padding: 32px;
+	}
 }

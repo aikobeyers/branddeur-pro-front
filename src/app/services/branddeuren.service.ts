@@ -36,4 +36,8 @@ export class BranddeurenService {
   public createInspection(request: Record<string, unknown>): Observable<unknown> {
     return this.http.post<unknown>(`${BASE_URL}${BRANDDEUR_INSPECTIES_SUFFIX}`, request);
   }
+
+  public updateInspection(id: string, request: Record<string, unknown>): Observable<unknown> {
+    return this.http.put<unknown>(`${BASE_URL}${BRANDDEUR_INSPECTIES_SUFFIX}/${id}`, request);
+  }
 }

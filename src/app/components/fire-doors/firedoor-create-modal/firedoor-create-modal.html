@@ -11,10 +11,17 @@
         <input type="text" formControlName="name" placeholder="Bijv. BD-010" />
       </label>
 
-      @if (!isEditMode()) {
+      @if (!isEditMode() || (isEditMode() && !hasMostRecentInspection())) {
         <label>
           <span>Eerste inspectie</span>
           <input type="date" formControlName="initialInspectionDate" />
+        </label>
+      }
+
+      @if (isEditMode() && hasMostRecentInspection()) {
+        <label>
+          <span>Volgende inspectie</span>
+          <input type="date" formControlName="nextInspectionDate" />
         </label>
       }
 
