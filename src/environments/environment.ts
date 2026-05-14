@@ -1,4 +1,4 @@
 export const environment = {
   production: false,
-  baseUrl: 'https://branddeur-pro-api.netlify.app/.netlify/functions/branddeur-pro-server'
+  baseUrl: 'http://localhost:8888/.netlify/functions/branddeur-pro-server'
 };

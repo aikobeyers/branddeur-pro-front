@@ -70,10 +70,19 @@
   </aside>
 
   <!-- Mobile Menu Overlay -->
-  <div class="mobile-menu-backdrop" *ngIf="isMobileMenuOpen()" (click)="closeMobileMenu()"></div>
+  <div
+    class="mobile-menu-backdrop"
+    [class.open]="isMobileMenuOpen()"
+    [attr.aria-hidden]="!isMobileMenuOpen()"
+    (click)="closeMobileMenu()"
+  ></div>
 
   <!-- Mobile Menu (slides in from left) -->
-  <nav class="mobile-menu" *ngIf="isMobileMenuOpen()" [class.open]="isMobileMenuOpen()">
+  <nav
+    class="mobile-menu"
+    [class.open]="isMobileMenuOpen()"
+    [attr.aria-hidden]="!isMobileMenuOpen()"
+  >
     <div class="mobile-nav-content">
       <section class="nav-section" aria-label="Navigatie">
         <p class="section-label">NAVIGATIE</p>

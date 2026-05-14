@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive } from "@angular/router";
-import { NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-side-navigation',
@@ -8,7 +7,7 @@ import { NgIf } from '@angular/common';
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './side-navigation.html',
   styleUrl: './side-navigation.scss',
-  imports: [RouterLink, RouterLinkActive, NgIf]
+  imports: [RouterLink, RouterLinkActive]
 })
 export class SideNavigationComponent {
   protected readonly isMobileMenuOpen = signal(false);

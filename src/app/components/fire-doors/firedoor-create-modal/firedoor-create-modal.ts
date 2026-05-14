@@ -106,7 +106,7 @@ export class FiredoorCreateModal {
       return;
     }
 
-    const rawValue = this.form.getRawValue();
+    const rawValue = this.form.getRawValue();    
     this.isSubmitting.set(true);
 
     const payload = {
@@ -123,7 +123,6 @@ export class FiredoorCreateModal {
       ...payload,
       initialInspectionDate: this.normalizeDateOptional(rawValue.initialInspectionDate)
     };
-
     const branddeurToEdit = this.branddeurToEdit();
     const nextInspectionDate = this.normalizeDateOptional(rawValue.nextInspectionDate);
     const initialInspectionDate = this.normalizeDateOptional(rawValue.initialInspectionDate);
