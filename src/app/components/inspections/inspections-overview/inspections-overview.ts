@@ -1,4 +1,34 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
+
+import { BranddeurInspectie, CheckListItemResult } from '../../../models/branddeur-inspectie';
+import { InspectieChecklistCategory, InspectieChecklistItem } from '../../../models/inspectie-checklist-item';
+import { BranddeurenService } from '../../../services/branddeuren.service';
+import type { Content, ContentTable, TableCell, TDocumentDefinitions } from 'pdfmake/interfaces';
+
+interface PdfMakeInstance {
+  addVirtualFileSystem?: (vfs: Record<string, string>) => void;
+  addFonts?: (fonts: Record<string, unknown>) => void;
+  setFonts?: (fonts: Record<string, unknown>) => void;
+  vfs?: Record<string, string>;
+  createPdf: (documentDefinition: TDocumentDefinitions) => {
+    download: (defaultFileName?: string) => void;
+  };
+}
+
+interface VfsFontsModule {
+  default?: {
+    pdfMake?: {
+      vfs?: Record<string, string>;
+    };
+    vfs?: Record<string, string>;
+  };
+  pdfMake?: {
+    vfs?: Record<string, string>;
+  };
+  vfs?: Record<string, string>;
+  [key: string]: unknown;
+}
 
 @Component({
   selector: 'app-inspections-overview',
@@ -6,4 +36,423 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
   templateUrl: './inspections-overview.html',
   styleUrl: './inspections-overview.scss'
 })
-export class InspectionsOverviewComponent {}
+export class InspectionsOverviewComponent {
+  private readonly branddeurenService = inject(BranddeurenService);
+
+  protected readonly isGenerating = signal(false);
+  protected readonly generateError = signal<string | null>(null);
+
+  protected async onDownload(): Promise<void> {
+    if (this.isGenerating()) {
+      return;
+    }
+
+    this.isGenerating.set(true);
+    this.generateError.set(null);
+
+    try {
+      const [inspections, checklistItems] = await Promise.all([
+        firstValueFrom(this.branddeurenService.getBranddeurInspecties()),
+        firstValueFrom(this.branddeurenService.getInspectieChecklistItems())
+      ]);
+      const checklistLookup = this.buildChecklistLookup(checklistItems ?? []);
+
+      if (!inspections || inspections.length === 0) {
+        this.generateError.set('Er zijn geen inspecties beschikbaar om te exporteren.');
+        return;
+      }
+
+      const [pdfMakeModule, pdfFontsModule] = await Promise.all([
+        import('pdfmake/build/pdfmake'),
+        import('pdfmake/build/vfs_fonts')
+      ]);
+
+      const pdfMake = pdfMakeModule.default as PdfMakeInstance;
+      this.configurePdfFonts(pdfMake, pdfFontsModule as unknown as VfsFontsModule);
+
+      const documentDefinition = this.buildDocumentDefinition(inspections, checklistLookup);
+      pdfMake.createPdf(documentDefinition).download('controleverslag-branddeuren.pdf');
+    } catch (error) {
+      console.error('PDF generation failed', error);
+      this.generateError.set('PDF genereren is mislukt. Probeer het opnieuw.');
+    } finally {
+      this.isGenerating.set(false);
+    }
+  }
+
+  private buildDocumentDefinition(
+    inspections: BranddeurInspectie[],
+    checklistLookup: Map<string, InspectieChecklistItem>
+  ): TDocumentDefinitions {
+    const content: Content[] = [];
+
+    inspections.forEach((inspection, index) => {
+      const sectionContent = this.buildInspectionContent(inspection, checklistLookup);
+
+      if (index > 0) {
+        const first = sectionContent[0] as Content & { pageBreak?: 'before' | 'after' };
+        first.pageBreak = 'before';
+      }
+
+      content.push(...sectionContent);
+    });
+
+    return {
+      pageSize: 'A4',
+      pageMargins: [26, 36, 26, 36],
+      content,
+      styles: {
+        reportTitle: {
+          fontSize: 19,
+          bold: true,
+          color: '#2f5f96',
+          alignment: 'center',
+          margin: [0, 0, 0, 22]
+        },
+        sectionTitle: {
+          fontSize: 14,
+          bold: true,
+          color: '#4f7fbe',
+          margin: [0, 16, 0, 8]
+        },
+        subSectionTitle: {
+          fontSize: 11,
+          bold: true,
+          color: '#4f7fbe',
+          margin: [0, 14, 0, 6]
+        },
+        labelCell: {
+          fontSize: 10,
+          bold: true
+        },
+        valueCell: {
+          fontSize: 10
+        },
+        tableHeader: {
+          fontSize: 10,
+          bold: true
+        },
+        checklistCell: {
+          fontSize: 10
+        },
+        checklistMark: {
+          fontSize: 12,
+          alignment: 'center'
+        },
+        listItem: {
+          fontSize: 10,
+          margin: [0, 0, 0, 2]
+        }
+      },
+      defaultStyle: {
+        font: 'Roboto',
+        fontSize: 10
+      }
+    };
+  }
+
+  private configurePdfFonts(pdfMake: PdfMakeInstance, pdfFontsModule: VfsFontsModule): void {
+    const vfs = this.resolveVfs(pdfFontsModule);
+
+    if (vfs) {
+      if (typeof pdfMake.addVirtualFileSystem === 'function') {
+        pdfMake.addVirtualFileSystem(vfs);
+      } else {
+        pdfMake.vfs = vfs;
+      }
+    }
+
+    const fonts = {
+      Roboto: {
+        normal: 'Roboto-Regular.ttf',
+        bold: 'Roboto-Medium.ttf',
+        italics: 'Roboto-Italic.ttf',
+        bolditalics: 'Roboto-MediumItalic.ttf'
+      }
+    };
+
+    if (typeof pdfMake.setFonts === 'function') {
+      pdfMake.setFonts(fonts);
+      return;
+    }
+
+    if (typeof pdfMake.addFonts === 'function') {
+      pdfMake.addFonts(fonts);
+    }
+  }
+
+  private resolveVfs(pdfFontsModule: VfsFontsModule): Record<string, string> | undefined {
+    const candidates: unknown[] = [
+      pdfFontsModule.default?.pdfMake?.vfs,
+      pdfFontsModule.default?.vfs,
+      pdfFontsModule.pdfMake?.vfs,
+      pdfFontsModule.vfs,
+      pdfFontsModule.default,
+      pdfFontsModule,
+    ];
+
+    for (const candidate of candidates) {
+      if (!candidate || typeof candidate !== 'object') {
+        continue;
+      }
+
+      const record = candidate as Record<string, unknown>;
+      if (typeof record['Roboto-Regular.ttf'] === 'string') {
+        return record as Record<string, string>;
+      }
+    }
+
+    return undefined;
+  }
+
+  private buildInspectionContent(
+    inspection: BranddeurInspectie,
+    checklistLookup: Map<string, InspectieChecklistItem>
+  ): Content[] {
+    const content: Content[] = [
+      { text: 'Controleverslag Branddeuren', style: 'reportTitle' },
+      { text: 'Algemene Gegevens', style: 'sectionTitle' },
+      this.buildGeneralInfoTable(inspection),
+      { text: 'Controlepunten per Branddeur', style: 'sectionTitle' },
+      { text: `Deur nr. ${this.getDoorLabel(inspection)}`, margin: [0, 0, 0, 8], bold: true }
+    ];
+
+    const groupedChecklistItems = this.groupChecklistItemsByCategory(
+      inspection.checkListItems || [],
+      checklistLookup
+    );
+    for (const [categoryLabel, items] of groupedChecklistItems.entries()) {
+      content.push({ text: categoryLabel, style: 'subSectionTitle' });
+      content.push(this.buildChecklistTable(items, checklistLookup));
+    }
+
+    if (inspection.foundProblems.length > 0) {
+      content.push({ text: 'Vastgestelde afwijkingen', style: 'sectionTitle' });
+      content.push({
+        stack: inspection.foundProblems.map(problem => ({ text: `• ${problem}`, style: 'listItem' }))
+      });
+    }
+
+    if (inspection.suggestedActions.length > 0) {
+      content.push({ text: 'Aanbevolen corrigerende acties', style: 'sectionTitle' });
+      content.push({
+        stack: inspection.suggestedActions.map(action => ({ text: `• ${action}`, style: 'listItem' }))
+      });
+    }
+
+    return content;
+  }
+
+  private buildGeneralInfoTable(inspection: BranddeurInspectie): ContentTable {
+    const body: TableCell[][] = [
+      [
+        { text: 'Onderdeel', style: 'tableHeader' },
+        { text: 'Informatie', style: 'tableHeader' }
+      ],
+      [
+        { text: 'Datum inspectie', style: 'labelCell' },
+        { text: this.formatDate(inspection.inspectionDate), style: 'valueCell' }
+      ],
+      [
+        { text: 'Uitgevoerd door', style: 'labelCell' },
+        { text: inspection.inspectorName || '-', style: 'valueCell' }
+      ],
+      [
+        { text: 'Aanwezige verantwoordelijke', style: 'labelCell' },
+        { text: inspection.supervisor || '-', style: 'valueCell' }
+      ],
+      [
+        { text: 'Volgende inspectiedatum', style: 'labelCell' },
+        { text: this.formatDate(inspection.nextInspection), style: 'valueCell' }
+      ],
+      [
+        { text: 'Type inspectie', style: 'labelCell' },
+        { text: inspection.inspectionType || '-', style: 'valueCell' }
+      ],
+      [
+        { text: 'Algemene staat', style: 'labelCell' },
+        { text: inspection.generalCondition || '-', style: 'valueCell' }
+      ],
+      [
+        { text: 'Inspectie resultaat', style: 'labelCell' },
+        { text: inspection.inspectionResult?.statusValue || '-', style: 'valueCell' }
+      ]
+    ];
+
+    return {
+      table: {
+        headerRows: 1,
+        widths: ['48%', '52%'],
+        body
+      },
+      layout: {
+        hLineWidth: () => 0.7,
+        vLineWidth: () => 0.7,
+        hLineColor: () => '#5f5f5f',
+        vLineColor: () => '#5f5f5f',
+        paddingLeft: () => 8,
+        paddingRight: () => 8,
+        paddingTop: () => 5,
+        paddingBottom: () => 5
+      },
+      margin: [0, 0, 0, 8]
+    };
+  }
+
+  private buildChecklistTable(
+    items: CheckListItemResult[],
+    checklistLookup: Map<string, InspectieChecklistItem>
+  ): ContentTable {
+    const body: TableCell[][] = [
+      [
+        { text: 'Controlepunt', style: 'tableHeader' },
+        { text: 'Ja', style: 'tableHeader' },
+        { text: 'Nee', style: 'tableHeader' }
+      ],
+      ...items.map(item => {
+        const isYes = this.normalizeChecklistValue(item.value);
+
+        return [
+          { text: this.getChecklistItemLabel(item, checklistLookup), style: 'checklistCell' },
+          { text: isYes ? 'v' : '', style: 'checklistMark' },
+          { text: isYes ? '' : 'v', style: 'checklistMark' }
+        ];
+      })
+    ];
+
+    return {
+      table: {
+        headerRows: 1,
+        widths: ['58%', '21%', '21%'],
+        body
+      },
+      layout: {
+        hLineWidth: () => 0.7,
+        vLineWidth: () => 0.7,
+        hLineColor: () => '#5f5f5f',
+        vLineColor: () => '#5f5f5f',
+        paddingLeft: () => 8,
+        paddingRight: () => 8,
+        paddingTop: () => 5,
+        paddingBottom: () => 5
+      }
+    };
+  }
+
+  private getDoorLabel(inspection: BranddeurInspectie): string {
+    if (typeof inspection.branddeurId === 'string') {
+      return inspection.branddeurId;
+    }
+
+    const populatedBranddeur = inspection.branddeurId as unknown as { name?: string; _id?: string };
+    return populatedBranddeur.name || populatedBranddeur._id || '-';
+  }
+
+  private buildChecklistLookup(items: InspectieChecklistItem[]): Map<string, InspectieChecklistItem> {
+    return new Map(items.map(item => [item._id, item]));
+  }
+
+  private groupChecklistItemsByCategory(
+    items: CheckListItemResult[],
+    checklistLookup: Map<string, InspectieChecklistItem>
+  ): Map<string, CheckListItemResult[]> {
+    const grouped = new Map<string, CheckListItemResult[]>();
+
+    for (const item of items) {
+      const category = this.getChecklistCategoryLabel(item.itemId, checklistLookup);
+      const existing = grouped.get(category);
+
+      if (existing) {
+        existing.push(item);
+        continue;
+      }
+
+      grouped.set(category, [item]);
+    }
+
+    return grouped;
+  }
+
+  private getChecklistCategoryLabel(
+    itemId: CheckListItemResult['itemId'],
+    checklistLookup: Map<string, InspectieChecklistItem>
+  ): string {
+    const checklistItem = this.resolveChecklistItem(itemId, checklistLookup);
+    const category = checklistItem?.category;
+
+    if (!category) {
+      return 'Checklist';
+    }
+
+    if (typeof category === 'string') {
+      return category || 'Checklist';
+    }
+
+    return category.value || category.code || 'Checklist';
+  }
+
+  private getChecklistItemLabel(
+    item: CheckListItemResult,
+    checklistLookup: Map<string, InspectieChecklistItem>
+  ): string {
+    const checklistItem = this.resolveChecklistItem(item.itemId, checklistLookup);
+    if (checklistItem) {
+      return checklistItem.displayValue || checklistItem._id;
+    }
+
+    if (typeof item.itemId === 'string') {
+      return item.itemId;
+    }
+
+    return item.itemId.displayValue || item.itemId._id;
+  }
+
+  private resolveChecklistItem(
+    itemId: CheckListItemResult['itemId'],
+    checklistLookup: Map<string, InspectieChecklistItem>
+  ): InspectieChecklistItem | undefined {
+    if (typeof itemId === 'string') {
+      return checklistLookup.get(itemId);
+    }
+
+    if (itemId.category && typeof itemId.category !== 'string') {
+      return itemId;
+    }
+
+    return checklistLookup.get(itemId._id) || itemId;
+  }
+
+  private normalizeChecklistValue(value: unknown): boolean {
+    if (typeof value === 'boolean') {
+      return value;
+    }
+
+    if (typeof value === 'string') {
+      const normalized = value.trim().toLowerCase();
+      return normalized === 'true' || normalized === '1' || normalized === 'ja' || normalized === 'yes';
+    }
+
+    if (typeof value === 'number') {
+      return value === 1;
+    }
+
+    return Boolean(value);
+  }
+
+  private formatDate(dateString: string | undefined): string {
+    if (!dateString) {
+      return '-';
+    }
+
+    const date = new Date(dateString);
+    if (Number.isNaN(date.getTime())) {
+      return '-';
+    }
+
+    return new Intl.DateTimeFormat('nl-NL', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    }).format(date);
+  }
+}

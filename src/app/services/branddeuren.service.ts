@@ -34,6 +34,10 @@ export class BranddeurenService {
     return this.http.get<InspectieChecklistItem[]>(`${BASE_URL}${INSPECTIE_CHECKLIST_ITEMS_SUFFIX}`);
   }
 
+  public getBranddeurInspecties(): Observable<BranddeurInspectie[]> {
+    return this.http.get<BranddeurInspectie[]>(`${BASE_URL}${BRANDDEUR_INSPECTIES_SUFFIX}`);
+  }
+
   public createInspection(request: CreateBranddeurInspectieRequest): Observable<BranddeurInspectie> {
     return this.http.post<BranddeurInspectie>(`${BASE_URL}${BRANDDEUR_INSPECTIES_SUFFIX}`, request);
   }

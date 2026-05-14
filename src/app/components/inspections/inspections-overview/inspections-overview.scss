@@ -12,4 +12,16 @@
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
+
+  &:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+  }
+}
+
+.download-error {
+  margin: 10px 0 0;
+  color: #c73f28;
+  font-size: 13px;
+  font-weight: 600;
 }
