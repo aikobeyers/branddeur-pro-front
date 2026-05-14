@@ -121,7 +121,7 @@
 
     <!-- Gevonden Problemen Section -->
     <section class="form-section">
-      <h2>Gevonden problemen</h2>
+      <h2>Vastgestelde afwijkingen</h2>
 
       <div class="problem-input-group">
         <textarea 
@@ -144,6 +144,39 @@
                 class="remove-button" 
                 (click)="removeProblem($index)"
                 aria-label="Verwijder probleem"
+              >
+                ×
+              </button>
+            </div>
+          }
+        </div>
+      }
+    </section>
+
+    <section class="form-section">
+      <h2>Aanbevolen corrigerende acties</h2>
+
+      <div class="problem-input-group">
+        <textarea
+          #actionTextarea
+          placeholder="Beschrijf een aanbevolen actie..."
+          rows="4"
+        ></textarea>
+        <button type="button" class="add-button" (click)="addSuggestedAction(actionTextarea.value); actionTextarea.value = ''">
+          Toevoegen
+        </button>
+      </div>
+
+      @if (suggestedActions().length > 0) {
+        <div class="problems-list">
+          @for (action of suggestedActions(); track $index) {
+            <div class="problem-item">
+              <span>{{ action }}</span>
+              <button
+                type="button"
+                class="remove-button"
+                (click)="removeSuggestedAction($index)"
+                aria-label="Verwijder actie"
               >
                 ×
               </button>

@@ -49,6 +49,7 @@ export class NewInspectionComponent {
 
   protected readonly checklistItems = signal<InspectieChecklistItem[]>([]);
   protected readonly problems = signal<string[]>([]);
+  protected readonly suggestedActions = signal<string[]>([]);
   protected readonly groupedChecklistItems = computed<ChecklistItemsGroup[]>(() => {
     const groups = new Map<string, ChecklistItemsGroup>();
 
@@ -130,6 +131,17 @@ export class NewInspectionComponent {
     this.problems.update(items => items.filter((_, i) => i !== index));
   }
 
+  protected addSuggestedAction(actionText: string): void {
+    const trimmedText = actionText.trim();
+    if (trimmedText.length > 0) {
+      this.suggestedActions.update(items => [...items, trimmedText]);
+    }
+  }
+
+  protected removeSuggestedAction(index: number): void {
+    this.suggestedActions.update(items => items.filter((_, i) => i !== index));
+  }
+
   protected onSubmit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -144,6 +156,7 @@ export class NewInspectionComponent {
       branddeurId: rawValue.branddeurId,
       checklistItems: rawValue.checklistItems,
       foundProblems: this.problems(),
+      suggestedActions: this.suggestedActions(),
       generalCondition: this.normalizeOptional(rawValue.generalCondition),
       inspectionResult: {
         statusCode: rawValue.inspectionResult,
@@ -167,6 +180,7 @@ export class NewInspectionComponent {
           this.submitSuccess.set(true);
           this.form.reset();
           this.problems.set([]);
+          this.suggestedActions.set([]);
         },
         error: (err) => {
           this.isSubmitting.set(false);
