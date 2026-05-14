@@ -63,19 +63,27 @@
     <section class="form-section">
       <h2>Inspectie checklist <span class="warning-icon" aria-label="Let op">⚠</span></h2>
 
-      <div class="checklist-grid">
-        @if (checklistItems().length > 0) {
-          @for (item of checklistItems(); track item._id) {
-            <label class="checkbox-item" [class.damage-check]="item.damageCheck">
-              <input 
-                type="checkbox" 
-                [formControl]="getChecklistControl(item._id)!" 
-              />
-              <span>{{ item.displayValue }}</span>
-            </label>
+      @if (groupedChecklistItems().length > 0) {
+        <div class="checklist-category-list">
+          @for (group of groupedChecklistItems(); track group.categoryKey) {
+            <section class="checklist-category-group">
+              <h3 class="checklist-category-title">{{ group.categoryLabel }}</h3>
+
+              <div class="checklist-grid">
+                @for (item of group.items; track item._id) {
+                  <label class="checkbox-item">
+                    <input 
+                      type="checkbox" 
+                      [formControl]="getChecklistControl(item._id)!" 
+                    />
+                    <span>{{ item.displayValue }}</span>
+                  </label>
+                }
+              </div>
+            </section>
           }
-        }
-      </div>
+        </div>
+      }
     </section>
 
     <!-- Algemene Staat van de Deur Section -->

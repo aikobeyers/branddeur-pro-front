@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, effect, inject, Injector, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, Injector, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { httpResource } from '@angular/common/http';
 import { ReactiveFormsModule, FormBuilder, Validators, FormGroup } from '@angular/forms';
@@ -7,8 +7,14 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { BranddeurenService } from '../../../services/branddeuren.service';
 import { Branddeur } from '../../../models/branddeur';
-import { InspectieChecklistItem } from '../../../models/inspectie-checklist-item';
+import { InspectieChecklistCategory, InspectieChecklistItem } from '../../../models/inspectie-checklist-item';
 import { environment } from '../../../../environments/environment';
+
+interface ChecklistItemsGroup {
+  categoryKey: string;
+  categoryLabel: string;
+  items: InspectieChecklistItem[];
+}
 
 @Component({
   selector: 'app-new-inspection',
@@ -36,6 +42,28 @@ export class NewInspectionComponent {
 
   protected readonly checklistItems = signal<InspectieChecklistItem[]>([]);
   protected readonly problems = signal<string[]>([]);
+  protected readonly groupedChecklistItems = computed<ChecklistItemsGroup[]>(() => {
+    const groups = new Map<string, ChecklistItemsGroup>();
+
+    for (const item of this.checklistItems()) {
+      const categoryKey = this.getCategoryKey(item.category);
+      const categoryLabel = this.getCategoryLabel(item.category);
+      const existingGroup = groups.get(categoryKey);
+
+      if (existingGroup) {
+        existingGroup.items.push(item);
+        continue;
+      }
+
+      groups.set(categoryKey, {
+        categoryKey,
+        categoryLabel,
+        items: [item],
+      });
+    }
+
+    return Array.from(groups.values());
+  });
 
   protected readonly form = this.formBuilder.nonNullable.group({
     branddeurId: ['', [Validators.required]],
@@ -148,6 +176,22 @@ export class NewInspectionComponent {
     }
 
     return date.toISOString().split('T')[0];
+  }
+
+  private getCategoryLabel(category: string | InspectieChecklistCategory): string {
+    if (typeof category === 'string') {
+      return 'Overig';
+    }
+
+    return category.value?.trim() || category.code?.trim() || 'Overig';
+  }
+
+  private getCategoryKey(category: string | InspectieChecklistCategory): string {
+    if (typeof category === 'string') {
+      return category;
+    }
+
+    return category._id;
   }
 }
 

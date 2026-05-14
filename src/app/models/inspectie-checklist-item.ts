@@ -1,5 +1,11 @@
+export interface InspectieChecklistCategory {
+  _id: string;
+  code: string;
+  value: string;
+}
+
 export interface InspectieChecklistItem {
   _id: string;
   displayValue: string;
-  damageCheck: boolean;
+  category: string | InspectieChecklistCategory;
 }

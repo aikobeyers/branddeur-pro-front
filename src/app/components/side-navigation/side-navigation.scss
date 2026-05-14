@@ -1,9 +1,17 @@
 :host {
   display: block;
+
+  @media (min-width: 1024px) {
+    height: 100%;
+  }
 }
 
 .nav-container {
   position: relative;
+
+  @media (min-width: 1024px) {
+    height: 100%;
+  }
 }
 
 .mobile-header {
@@ -175,9 +183,7 @@
   display: none;
   width: 300px;
   min-height: 100dvh;
-  position: sticky;
-  top: 0;
-  align-self: flex-start;
+  height: 100dvh;
   overflow-y: auto;
   background: #f8fafc;
   border-right: 1px solid #e4ebf4;
@@ -185,6 +191,9 @@
 
   @media (min-width: 1024px) {
     display: block;
+    position: sticky;
+    top: 0;
+    align-self: flex-start;
   }
 }
 
