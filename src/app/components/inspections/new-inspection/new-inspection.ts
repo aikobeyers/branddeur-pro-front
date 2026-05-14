@@ -7,6 +7,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { BranddeurenService } from '../../../services/branddeuren.service';
 import { Branddeur } from '../../../models/branddeur';
+import { CreateBranddeurInspectieRequest, InspectionStatusCode, InspectionStatusValue } from '../../../models/branddeur-inspectie';
 import { InspectieChecklistCategory, InspectieChecklistItem } from '../../../models/inspectie-checklist-item';
 import { environment } from '../../../../environments/environment';
 
@@ -15,6 +16,12 @@ interface ChecklistItemsGroup {
   categoryLabel: string;
   items: InspectieChecklistItem[];
 }
+
+const INSPECTION_STATUS_VALUES: Record<InspectionStatusCode, InspectionStatusValue> = {
+  A: 'Goedgekeurd',
+  B: 'Herstel nodig',
+  C: 'Afgekeurd',
+};
 
 @Component({
   selector: 'app-new-inspection',
@@ -68,12 +75,13 @@ export class NewInspectionComponent {
   protected readonly form = this.formBuilder.nonNullable.group({
     branddeurId: ['', [Validators.required]],
     inspectorName: ['', [Validators.required]],
+    supervisor: [''],
     inspectionDate: [new Date().toISOString().split('T')[0], [Validators.required]],
     inspectionType: ['Routine Inspectie'],
     nextInspection: ['', [Validators.required]],
     checklistItems: this.formBuilder.group({}, { nonNullable: true }),
     generalCondition: ['Goed'],
-    inspectionResult: ['A'],
+    inspectionResult: ['A' as InspectionStatusCode],
     foundProblems: [[] as string[]]
   });
 
@@ -127,13 +135,31 @@ export class NewInspectionComponent {
       this.form.markAllAsTouched();
       return;
     }
-    this.form.patchValue({ foundProblems: this.problems() });
+
+    const rawValue = this.form.getRawValue();
+    const inspectionDate = this.normalizeDateOptional(rawValue.inspectionDate);
+    const nextInspection = this.normalizeDateOptional(rawValue.nextInspection);
+    const supervisor = this.normalizeOptional(rawValue.supervisor);
+    const payload: CreateBranddeurInspectieRequest = {
+      branddeurId: rawValue.branddeurId,
+      checklistItems: rawValue.checklistItems,
+      foundProblems: this.problems(),
+      generalCondition: this.normalizeOptional(rawValue.generalCondition),
+      inspectionResult: {
+        statusCode: rawValue.inspectionResult,
+        statusValue: INSPECTION_STATUS_VALUES[rawValue.inspectionResult],
+      },
+      inspectionType: this.normalizeOptional(rawValue.inspectionType),
+      inspectorName: this.normalizeOptional(rawValue.inspectorName),
+      supervisor,
+      inspectionDate,
+      nextInspection,
+    };
+
     this.isSubmitting.set(true);
     this.submitError.set(null);
 
-
-
-    this.branddeurenService.createInspection(this.form.getRawValue())
+    this.branddeurenService.createInspection(payload)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
@@ -176,6 +202,29 @@ export class NewInspectionComponent {
     }
 
     return date.toISOString().split('T')[0];
+  }
+
+  private normalizeOptional(value: string): string | undefined {
+    const trimmed = value.trim();
+    return trimmed === '' ? undefined : trimmed;
+  }
+
+  private normalizeDateOptional(value: string): string | undefined {
+    const trimmed = value.trim();
+    if (trimmed === '') {
+      return undefined;
+    }
+
+    if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+      return `${trimmed}T00:00:00.000Z`;
+    }
+
+    const date = new Date(trimmed);
+    if (Number.isNaN(date.getTime())) {
+      return undefined;
+    }
+
+    return date.toISOString();
   }
 
   private getCategoryLabel(category: string | InspectieChecklistCategory): string {

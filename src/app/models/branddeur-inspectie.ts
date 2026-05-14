@@ -1,20 +1,43 @@
+import { InspectieChecklistItem } from './inspectie-checklist-item';
+
+export type InspectionStatusCode = 'A' | 'B' | 'C';
+export type InspectionStatusValue = 'Goedgekeurd' | 'Herstel nodig' | 'Afgekeurd';
+
+export interface InspectionResult {
+  statusCode: InspectionStatusCode;
+  statusValue: InspectionStatusValue;
+}
+
+export interface CheckListItemResult {
+  itemId: string | InspectieChecklistItem;
+  value: boolean;
+}
+
 export interface BranddeurInspectie {
   _id: string;
   branddeurId: string;
-  checkListItems: Array<{
-    itemId: string;
-    value: string;
-    foundProblems: string[];
-    createdAt: string;
-  }>;
-  generalCondition: string;
-  inspectionDate: string;
-  inspectionResult: {
-    statusCode: 'A' | 'B' | 'C';
-    statusValue: string;
-  };
-  inspectionType: string;
-  inspectorName: string;
-  nextInspection: string;
+  checkListItems: CheckListItemResult[];
+  foundProblems: string[];
+  generalCondition?: string;
+  inspectionDate?: string;
+  inspectionResult?: InspectionResult;
+  inspectionType?: string;
+  inspectorName?: string;
+  supervisor?: string;
+  nextInspection?: string;
+  createdAt: string;
   updatedAt: string;
+}
+
+export interface CreateBranddeurInspectieRequest {
+  branddeurId: string;
+  checklistItems?: Record<string, boolean>;
+  foundProblems?: string[];
+  generalCondition?: string;
+  inspectionDate?: string;
+  inspectionResult?: InspectionResult | InspectionStatusCode;
+  inspectionType?: string;
+  inspectorName?: string;
+  supervisor?: string;
+  nextInspection?: string;
 }

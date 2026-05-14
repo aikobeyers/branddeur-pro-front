@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 
 import { environment } from '../../environments/environment';
 import { Branddeur, CreateBranddeurRequest } from '../models/branddeur';
+import { BranddeurInspectie, CreateBranddeurInspectieRequest } from '../models/branddeur-inspectie';
 import { InspectieChecklistItem } from '../models/inspectie-checklist-item';
 
 const BASE_URL: string = environment.baseUrl;
@@ -33,11 +34,11 @@ export class BranddeurenService {
     return this.http.get<InspectieChecklistItem[]>(`${BASE_URL}${INSPECTIE_CHECKLIST_ITEMS_SUFFIX}`);
   }
 
-  public createInspection(request: Record<string, unknown>): Observable<unknown> {
-    return this.http.post<unknown>(`${BASE_URL}${BRANDDEUR_INSPECTIES_SUFFIX}`, request);
+  public createInspection(request: CreateBranddeurInspectieRequest): Observable<BranddeurInspectie> {
+    return this.http.post<BranddeurInspectie>(`${BASE_URL}${BRANDDEUR_INSPECTIES_SUFFIX}`, request);
   }
 
-  public updateInspection(id: string, request: Record<string, unknown>): Observable<unknown> {
-    return this.http.put<unknown>(`${BASE_URL}${BRANDDEUR_INSPECTIES_SUFFIX}/${id}`, request);
+  public updateInspection(id: string, request: Partial<CreateBranddeurInspectieRequest>): Observable<BranddeurInspectie> {
+    return this.http.put<BranddeurInspectie>(`${BASE_URL}${BRANDDEUR_INSPECTIES_SUFFIX}/${id}`, request);
   }
 }

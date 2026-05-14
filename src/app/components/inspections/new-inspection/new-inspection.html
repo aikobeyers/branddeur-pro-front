@@ -39,6 +39,13 @@
         </label>
 
         <label>
+          <span>Supervisor</span>
+          <input type="text" formControlName="supervisor" placeholder="Naam van de supervisor" />
+        </label>
+      </div>
+
+      <div class="form-grid form-grid--2col">
+        <label>
           <span>Type inspectie</span>
           <select formControlName="inspectionType">
             <option value="Routine Inspectie">Routine Inspectie</option>
@@ -46,9 +53,7 @@
             <option value="Onverwachte Inspectie">Onverwachte Inspectie</option>
           </select>
         </label>
-      </div>
 
-      <div class="form-grid form-grid--2col">
         <label>
           <span>Volgende inspectie <span class="required">*</span></span>
           <input type="date" formControlName="nextInspection" />
