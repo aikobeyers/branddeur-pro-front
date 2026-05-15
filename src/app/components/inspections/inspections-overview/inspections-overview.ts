@@ -147,19 +147,39 @@ export class InspectionsOverviewComponent {
     building: string
   ): TDocumentDefinitions {
     const content: Content[] = [];
+    const groupedInspections = this.groupInspectionsByFloorAndLocation(inspections);
 
-    content.push({ text: `Gebouw: ${building}`, style: 'subSectionTitle', margin: [0, 0, 0, 8] });
+    content.push({ text: 'Controleverslag Branddeuren', style: 'reportTitle' });
+    content.push({ text: `Gebouw: ${building}`, style: 'sectionTitle', margin: [0, 0, 0, 8] });
 
-    inspections.forEach((inspection, index) => {
-      const sectionContent = this.buildInspectionContent(inspection, checklistLookup);
+    let isFirstFloor = true;
 
-      if (index > 0) {
-        const first = sectionContent[0] as Content & { pageBreak?: 'before' | 'after' };
-        first.pageBreak = 'before';
+    for (const [floor, locations] of groupedInspections.entries()) {
+      content.push({
+        text: `Verdieping: ${floor}`,
+        style: 'sectionTitle',
+        margin: [0, isFirstFloor ? 6 : 14, 0, 6]
+      });
+
+      for (const [location, locationInspections] of locations.entries()) {
+        content.push({ text: `Locatie: ${location}`, style: 'subSectionTitle', margin: [0, 8, 0, 6] });
+
+        locationInspections
+          .slice()
+          .sort((a, b) => this.getDoorLabel(a).localeCompare(this.getDoorLabel(b), 'nl-NL'))
+          .forEach((inspection, index) => {
+            const sectionContent = this.buildInspectionContent(inspection, checklistLookup);
+
+            if (index > 0) {
+              sectionContent.unshift({ text: '', margin: [0, 4, 0, 4] });
+            }
+
+            content.push(...sectionContent);
+          });
       }
 
-      content.push(...sectionContent);
-    });
+      isFirstFloor = false;
+    }
 
     return {
       pageSize: 'A4',
@@ -273,12 +293,11 @@ export class InspectionsOverviewComponent {
     inspection: BranddeurInspectie,
     checklistLookup: Map<string, InspectieChecklistItem>
   ): Content[] {
+    const doorLabel = this.getDoorLabel(inspection);
     const content: Content[] = [
-      { text: 'Controleverslag Branddeuren', style: 'reportTitle' },
-      { text: 'Algemene Gegevens', style: 'sectionTitle' },
+      { text: `Algemene gegevens inspectie ${doorLabel}`, style: 'subSectionTitle' },
       this.buildGeneralInfoTable(inspection),
-      { text: 'Controlepunten per Branddeur', style: 'sectionTitle' },
-      { text: `Deur nr. ${this.getDoorLabel(inspection)}`, margin: [0, 0, 0, 8], bold: true }
+      { text: 'Controlepunten', style: 'subSectionTitle' }
     ];
 
     const groupedChecklistItems = this.groupChecklistItemsByCategory(
@@ -290,21 +309,59 @@ export class InspectionsOverviewComponent {
       content.push(this.buildChecklistTable(items, checklistLookup));
     }
 
+    content.push({ text: 'Vastgestelde afwijkingen', style: 'subSectionTitle' });
     if (inspection.foundProblems.length > 0) {
-      content.push({ text: 'Vastgestelde afwijkingen', style: 'sectionTitle' });
       content.push({
         stack: inspection.foundProblems.map(problem => ({ text: `• ${problem}`, style: 'listItem' }))
       });
+    } else {
+      content.push({ text: '/', style: 'listItem' });
     }
 
+    content.push({ text: 'Aanbevolen corrigerende acties', style: 'subSectionTitle' });
     if (inspection.suggestedActions.length > 0) {
-      content.push({ text: 'Aanbevolen corrigerende acties', style: 'sectionTitle' });
       content.push({
         stack: inspection.suggestedActions.map(action => ({ text: `• ${action}`, style: 'listItem' }))
       });
+    } else {
+      content.push({ text: '/', style: 'listItem' });
     }
 
     return content;
+  }
+
+  private groupInspectionsByFloorAndLocation(
+    inspections: BranddeurInspectie[]
+  ): Map<string, Map<string, BranddeurInspectie[]>> {
+    const grouped = new Map<string, Map<string, BranddeurInspectie[]>>();
+
+    for (const inspection of inspections) {
+      const floor = this.getInspectionFloor(inspection);
+      const location = this.getInspectionLocation(inspection);
+
+      if (!grouped.has(floor)) {
+        grouped.set(floor, new Map());
+      }
+
+      const locationGroups = grouped.get(floor)!;
+      if (!locationGroups.has(location)) {
+        locationGroups.set(location, []);
+      }
+
+      locationGroups.get(location)!.push(inspection);
+    }
+
+    const sortedFloors = Array.from(grouped.entries())
+      .sort(([a], [b]) => a.localeCompare(b, 'nl-NL'));
+
+    return new Map(
+      sortedFloors.map(([floor, locations]) => {
+        const sortedLocations = Array.from(locations.entries())
+          .sort(([a], [b]) => a.localeCompare(b, 'nl-NL'));
+
+        return [floor, new Map(sortedLocations)];
+      })
+    );
   }
 
   private buildGeneralInfoTable(inspection: BranddeurInspectie): ContentTable {
@@ -430,6 +487,28 @@ export class InspectionsOverviewComponent {
 
     const branddeur = this.branddeurenById.get(branddeurId);
     return this.normalizeBuildingValue(branddeur?.building);
+  }
+
+  private getInspectionFloor(inspection: BranddeurInspectie): string {
+    const branddeurId = this.getInspectionBranddeurId(inspection);
+    if (!branddeurId) {
+      return 'Onbekende verdieping';
+    }
+
+    const branddeur = this.branddeurenById.get(branddeurId);
+    const floor = (branddeur?.floor || '').trim();
+    return floor || 'Onbekende verdieping';
+  }
+
+  private getInspectionLocation(inspection: BranddeurInspectie): string {
+    const branddeurId = this.getInspectionBranddeurId(inspection);
+    if (!branddeurId) {
+      return 'Onbekende locatie';
+    }
+
+    const branddeur = this.branddeurenById.get(branddeurId);
+    const location = (branddeur?.location || '').trim();
+    return location || 'Onbekende locatie';
   }
 
   private normalizeBuildingValue(building: string | undefined): string {
