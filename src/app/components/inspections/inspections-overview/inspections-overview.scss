@@ -113,6 +113,12 @@ h1 {
   line-height: 1.45;
 }
 
+.download-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
 .modal-backdrop {
   position: fixed;
   inset: 0;
@@ -220,6 +226,16 @@ h1 {
   &:disabled {
     opacity: 0.65;
     cursor: not-allowed;
+  }
+
+  &.compact {
+    border-color: #6b7b92;
+    background: linear-gradient(180deg, #7c8ca3 0%, #6b7b92 100%);
+    box-shadow: 0 2px 8px rgba(86, 101, 121, 0.3);
+
+    &:hover:not(:disabled) {
+      box-shadow: 0 5px 12px rgba(86, 101, 121, 0.35);
+    }
   }
 }
 

@@ -24,14 +24,25 @@
         Maak een volledig PDF-overzicht met de laatste inspectie van alle deuren van een geselecteerd gebouw.
       </p>
 
-      <button
-        type="button"
-        class="download-button"
-        (click)="onDownload()"
-        [disabled]="isGenerating() || isLoadingBuildings()"
-      >
-        {{ isGenerating() ? 'Genereren...' : (isLoadingBuildings() ? 'Gebouwen laden...' : 'Rapport downloaden') }}
-      </button>
+      <div class="download-actions">
+        <button
+          type="button"
+          class="download-button"
+          (click)="onDownload()"
+          [disabled]="isGenerating() || isLoadingBuildings()"
+        >
+          {{ isGenerating() ? 'Genereren...' : (isLoadingBuildings() ? 'Gebouwen laden...' : 'Uitgebreid rapport downloaden') }}
+        </button>
+
+        <button
+          type="button"
+          class="download-button compact"
+          (click)="onDownloadCompact()"
+          [disabled]="isGenerating() || isLoadingBuildings()"
+        >
+          {{ isGenerating() ? 'Genereren...' : (isLoadingBuildings() ? 'Gebouwen laden...' : 'Compact rapport downloaden') }}
+        </button>
+      </div>
 
       @if (generateError()) {
         <p class="download-error">{{ generateError() }}</p>
@@ -71,7 +82,7 @@
           (click)="confirmBuildingAndDownload()"
           [disabled]="isGenerating()"
         >
-          {{ isGenerating() ? 'Genereren...' : 'Download PDF' }}
+          {{ isGenerating() ? 'Genereren...' : ('Download ' + reportVariantLabel() + ' PDF') }}
         </button>
       </div>
     </section>

@@ -31,6 +31,8 @@ interface VfsFontsModule {
   [key: string]: unknown;
 }
 
+type ReportVariant = 'detailed' | 'compact';
+
 @Component({
   selector: 'app-inspections-overview',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -46,13 +48,23 @@ export class InspectionsOverviewComponent {
   protected readonly isBuildingModalOpen = signal(false);
   protected readonly buildingOptions = signal<string[]>([]);
   protected readonly selectedBuilding = signal('');
+  protected readonly selectedReportVariant = signal<ReportVariant>('detailed');
   protected readonly generateError = signal<string | null>(null);
 
   protected async onDownload(): Promise<void> {
+    await this.openBuildingSelection('detailed');
+  }
+
+  protected async onDownloadCompact(): Promise<void> {
+    await this.openBuildingSelection('compact');
+  }
+
+  private async openBuildingSelection(reportVariant: ReportVariant): Promise<void> {
     if (this.isGenerating() || this.isLoadingBuildings()) {
       return;
     }
 
+    this.selectedReportVariant.set(reportVariant);
     this.isLoadingBuildings.set(true);
     this.generateError.set(null);
 
@@ -84,6 +96,10 @@ export class InspectionsOverviewComponent {
     }
   }
 
+  protected reportVariantLabel(): string {
+    return this.selectedReportVariant() === 'compact' ? 'compact' : 'uitgebreid';
+  }
+
   protected onBuildingSelected(event: Event): void {
     const target = event.target as HTMLSelectElement | null;
     if (!target) {
@@ -99,6 +115,7 @@ export class InspectionsOverviewComponent {
 
   protected async confirmBuildingAndDownload(): Promise<void> {
     const building = this.normalizeBuildingValue(this.selectedBuilding());
+    const reportVariant = this.selectedReportVariant();
 
     if (!building || this.isGenerating()) {
       return;
@@ -130,8 +147,13 @@ export class InspectionsOverviewComponent {
       const pdfMake = pdfMakeModule.default as PdfMakeInstance;
       this.configurePdfFonts(pdfMake, pdfFontsModule as unknown as VfsFontsModule);
 
-      const documentDefinition = this.buildDocumentDefinition(filteredInspections, checklistLookup, building);
-      pdfMake.createPdf(documentDefinition).download(this.getReportFileName(building));
+      const documentDefinition = this.buildDocumentDefinition(
+        filteredInspections,
+        checklistLookup,
+        building,
+        reportVariant
+      );
+      pdfMake.createPdf(documentDefinition).download(this.getReportFileName(building, reportVariant));
       this.isBuildingModalOpen.set(false);
     } catch (error) {
       console.error('PDF generation failed', error);
@@ -144,12 +166,16 @@ export class InspectionsOverviewComponent {
   private buildDocumentDefinition(
     inspections: BranddeurInspectie[],
     checklistLookup: Map<string, InspectieChecklistItem>,
-    building: string
+    building: string,
+    reportVariant: ReportVariant
   ): TDocumentDefinitions {
     const content: Content[] = [];
     const groupedInspections = this.groupInspectionsByFloorAndLocation(inspections);
 
-    content.push({ text: 'Controleverslag Branddeuren', style: 'reportTitle' });
+    content.push({
+      text: reportVariant === 'compact' ? 'Compact controleverslag Branddeuren' : 'Controleverslag Branddeuren',
+      style: 'reportTitle'
+    });
     content.push({ text: `Gebouw: ${building}`, style: 'sectionTitle', margin: [0, 0, 0, 8] });
 
     let isFirstFloor = true;
@@ -168,7 +194,9 @@ export class InspectionsOverviewComponent {
           .slice()
           .sort((a, b) => this.getDoorLabel(a).localeCompare(this.getDoorLabel(b), 'nl-NL'))
           .forEach((inspection, index) => {
-            const sectionContent = this.buildInspectionContent(inspection, checklistLookup);
+            const sectionContent = reportVariant === 'compact'
+              ? this.buildCompactInspectionContent(inspection)
+              : this.buildInspectionContent(inspection, checklistLookup);
 
             if (index > 0) {
               sectionContent.unshift({ text: '', margin: [0, 4, 0, 4] });
@@ -310,6 +338,37 @@ export class InspectionsOverviewComponent {
     }
 
     content.push({ text: 'Vastgestelde afwijkingen', style: 'subSectionTitle' });
+    if (inspection.foundProblems.length > 0) {
+      content.push({
+        stack: inspection.foundProblems.map(problem => ({ text: `• ${problem}`, style: 'listItem' }))
+      });
+    } else {
+      content.push({ text: '/', style: 'listItem' });
+    }
+
+    content.push({ text: 'Aanbevolen corrigerende acties', style: 'subSectionTitle' });
+    if (inspection.suggestedActions.length > 0) {
+      content.push({
+        stack: inspection.suggestedActions.map(action => ({ text: `• ${action}`, style: 'listItem' }))
+      });
+    } else {
+      content.push({ text: '/', style: 'listItem' });
+    }
+
+    return content;
+  }
+
+  private buildCompactInspectionContent(inspection: BranddeurInspectie): Content[] {
+    const content: Content[] = [
+      { text: `Branddeur ${this.getDoorLabel(inspection)}`, style: 'subSectionTitle' },
+      {
+        text: `Status: ${inspection.inspectionResult?.statusValue || '-'}`,
+        style: 'valueCell',
+        margin: [0, 0, 0, 6]
+      },
+      { text: 'Vastgestelde afwijkingen', style: 'subSectionTitle' }
+    ];
+
     if (inspection.foundProblems.length > 0) {
       content.push({
         stack: inspection.foundProblems.map(problem => ({ text: `• ${problem}`, style: 'listItem' }))
@@ -515,13 +574,14 @@ export class InspectionsOverviewComponent {
     return (building || '').trim();
   }
 
-  private getReportFileName(building: string): string {
+  private getReportFileName(building: string, reportVariant: ReportVariant): string {
     const slug = building
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-+|-+$/g, '');
 
-    return `controleverslag-branddeuren-${slug || 'gebouw'}.pdf`;
+    const reportType = reportVariant === 'compact' ? 'compact' : 'uitgebreid';
+    return `controleverslag-branddeuren-${reportType}-${slug || 'gebouw'}.pdf`;
   }
 
   private buildChecklistLookup(items: InspectieChecklistItem[]): Map<string, InspectieChecklistItem> {
