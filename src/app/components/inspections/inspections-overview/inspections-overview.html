@@ -1,16 +1,43 @@
 <section class="inspections-overview">
-  <button
-    type="button"
-    class="download-button"
-    (click)="onDownload()"
-    [disabled]="isGenerating() || isLoadingBuildings()"
-  >
-    {{ isGenerating() ? 'Genereren...' : (isLoadingBuildings() ? 'Gebouwen laden...' : 'Download') }}
-  </button>
+  <div class="overview-wrapper">
+    <header class="overview-header">
+      <div class="title-block">
+        <span class="title-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M7 4H17C18.1 4 19 4.9 19 6V18C19 19.1 18.1 20 17 20H7C5.9 20 5 19.1 5 18V6C5 4.9 5.9 4 7 4Z" fill="none" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M9 8H15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            <path d="M9 12H15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            <path d="M9 16H13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </span>
 
-  @if (generateError()) {
-    <p class="download-error">{{ generateError() }}</p>
-  }
+        <div>
+          <h1>Inspecties Overzicht</h1>
+          <p class="subtitle">Genereer en download inspectierapporten per gebouw</p>
+        </div>
+      </div>
+    </header>
+
+    <section class="report-panel" aria-labelledby="report-panel-title">
+      <h2 id="report-panel-title">Uitgebreid rapport per gebouw</h2>
+      <p class="report-text">
+        Maak een volledig PDF-overzicht met de laatste inspectie van alle deuren van een geselecteerd gebouw.
+      </p>
+
+      <button
+        type="button"
+        class="download-button"
+        (click)="onDownload()"
+        [disabled]="isGenerating() || isLoadingBuildings()"
+      >
+        {{ isGenerating() ? 'Genereren...' : (isLoadingBuildings() ? 'Gebouwen laden...' : 'Rapport downloaden') }}
+      </button>
+
+      @if (generateError()) {
+        <p class="download-error">{{ generateError() }}</p>
+      }
+    </section>
+  </div>
 
   @if (isBuildingModalOpen()) {
     <div class="modal-backdrop" (click)="closeBuildingModal()" aria-hidden="true"></div>
