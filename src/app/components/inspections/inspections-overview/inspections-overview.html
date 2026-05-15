@@ -48,6 +48,79 @@
         <p class="download-error">{{ generateError() }}</p>
       }
     </section>
+
+    @if (isLoadingCards()) {
+      <p class="status-message">Inspecties laden...</p>
+    } @else if (cardsError()) {
+      <p class="status-message error">{{ cardsError() }}</p>
+    } @else if (cards().length === 0) {
+      <p class="status-message">Geen inspecties gevonden.</p>
+    } @else {
+      <section class="cards-section" aria-label="Meest recente inspecties per deur">
+        <div class="cards-grid">
+          @for (card of cards(); track card.id) {
+            <article class="inspection-card">
+              <header class="card-header">
+                <h2 class="card-title">{{ card.doorName }}</h2>
+                <span
+                  class="status-pill"
+                  [class.status-approved]="statusClass(card.statusCode) === 'status-approved'"
+                  [class.status-warning]="statusClass(card.statusCode) === 'status-warning'"
+                  [class.status-error]="statusClass(card.statusCode) === 'status-error'"
+                  [class.status-unknown]="statusClass(card.statusCode) === 'status-unknown'"
+                >
+                  {{ card.statusLabel }}
+                </span>
+              </header>
+
+              <p class="location-row">{{ card.buildingLabel }} - {{ card.floorLabel }} - {{ card.locationLabel }}</p>
+
+              <div class="meta-row">
+                <p>{{ card.inspectorLabel }}</p>
+                <p>{{ card.inspectionDateLabel }}</p>
+              </div>
+
+              <div class="chip-row">
+                <span class="chip">{{ card.inspectionTypeLabel }}</span>
+                <span class="chip">{{ card.conditionLabel }}</span>
+              </div>
+
+              <section class="card-block">
+                <h3>Gevonden problemen ({{ card.problems.length }})</h3>
+                @if (card.problems.length > 0) {
+                  <ul>
+                    @for (problem of card.problems.slice(0, 2); track problem) {
+                      <li>{{ problem }}</li>
+                    }
+                  </ul>
+                } @else {
+                  <p>/</p>
+                }
+              </section>
+
+              <section class="card-block">
+                <h3>Aanbevelingen</h3>
+                @if (card.suggestedActions.length > 0) {
+                  <ul>
+                    @for (action of card.suggestedActions.slice(0, 2); track action) {
+                      <li>{{ action }}</li>
+                    }
+                  </ul>
+                } @else {
+                  <p>/</p>
+                }
+              </section>
+
+              <p class="next-inspection">Volgende inspectie: <strong>{{ card.nextInspectionLabel }}</strong></p>
+
+              <footer class="card-footer">
+                <a class="details-button" [routerLink]="['/inspecties-overzicht', card.id]">Details</a>
+              </footer>
+            </article>
+          }
+        </div>
+      </section>
+    }
   </div>
 
   @if (isBuildingModalOpen()) {

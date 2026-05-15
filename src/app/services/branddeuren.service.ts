@@ -48,6 +48,10 @@ export class BranddeurenService {
     return this.http.get<BranddeurInspectie[]>(`${BASE_URL}${BRANDDEUR_INSPECTIES_SUFFIX}`);
   }
 
+  public getBranddeurInspectieById(id: string): Observable<BranddeurInspectie> {
+    return this.http.get<BranddeurInspectie>(`${BASE_URL}${BRANDDEUR_INSPECTIES_SUFFIX}/${id}`);
+  }
+
   public createInspection(request: CreateBranddeurInspectieRequest): Observable<BranddeurInspectie> {
     return this.http.post<BranddeurInspectie>(`${BASE_URL}${BRANDDEUR_INSPECTIES_SUFFIX}`, request);
   }

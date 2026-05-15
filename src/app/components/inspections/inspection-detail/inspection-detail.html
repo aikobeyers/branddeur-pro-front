@@ -1,0 +1,76 @@
+<section class="inspection-detail">
+  <div class="detail-wrapper">
+    <a class="back-link" [routerLink]="['/inspecties-overzicht']">Terug naar inspecties</a>
+
+    @if (isLoading()) {
+      <p class="status-message">Inspectiedetails laden...</p>
+    } @else if (error()) {
+      <p class="status-message error">{{ error() }}</p>
+    } @else if (inspection()) {
+      <article class="detail-card">
+        <header class="detail-header">
+          <h1>{{ doorName() }}</h1>
+          <span
+            class="status-pill"
+            [class.status-approved]="statusClass(inspection()!.inspectionResult?.statusCode) === 'status-approved'"
+            [class.status-warning]="statusClass(inspection()!.inspectionResult?.statusCode) === 'status-warning'"
+            [class.status-error]="statusClass(inspection()!.inspectionResult?.statusCode) === 'status-error'"
+            [class.status-unknown]="statusClass(inspection()!.inspectionResult?.statusCode) === 'status-unknown'"
+          >
+            {{ inspection()!.inspectionResult?.statusValue || 'Onbekend' }}
+          </span>
+        </header>
+
+        <p class="location-line">{{ buildingLabel() }} - {{ floorLabel() }} - {{ locationLabel() }}</p>
+
+        <div class="meta-grid">
+          <p><strong>Inspecteur:</strong> {{ inspection()!.inspectorName || '-' }}</p>
+          <p><strong>Inspectie datum:</strong> {{ formatDate(inspection()!.inspectionDate) }}</p>
+          <p><strong>Type inspectie:</strong> {{ inspection()!.inspectionType || '-' }}</p>
+          <p><strong>Volgende inspectie:</strong> {{ formatDate(inspection()!.nextInspection) }}</p>
+          <p><strong>Algemene staat:</strong> {{ inspection()!.generalCondition || '-' }}</p>
+          <p><strong>Aanwezige verantwoordelijke:</strong> {{ inspection()!.supervisor || '-' }}</p>
+        </div>
+
+        <section class="section-block">
+          <h2>Controlepunten</h2>
+          @if (checklistResults().length > 0) {
+            <ul>
+              @for (item of checklistResults(); track item.label) {
+                <li><span>{{ item.label }}</span><strong>{{ item.value }}</strong></li>
+              }
+            </ul>
+          } @else {
+            <p>/</p>
+          }
+        </section>
+
+        <section class="section-block">
+          <h2>Vastgestelde afwijkingen</h2>
+          @if (inspection()!.foundProblems.length > 0) {
+            <ul>
+              @for (problem of inspection()!.foundProblems; track problem) {
+                <li>{{ problem }}</li>
+              }
+            </ul>
+          } @else {
+            <p>/</p>
+          }
+        </section>
+
+        <section class="section-block">
+          <h2>Aanbevolen corrigerende acties</h2>
+          @if (inspection()!.suggestedActions.length > 0) {
+            <ul>
+              @for (action of inspection()!.suggestedActions; track action) {
+                <li>{{ action }}</li>
+              }
+            </ul>
+          } @else {
+            <p>/</p>
+          }
+        </section>
+      </article>
+    }
+  </div>
+</section>

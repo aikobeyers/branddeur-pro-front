@@ -1,0 +1,152 @@
+.inspection-detail {
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.detail-wrapper {
+  width: 100%;
+  max-width: 1400px;
+  padding: 0 8px;
+
+  @media (min-width: 640px) {
+    padding: 0 12px;
+  }
+
+  @media (min-width: 1024px) {
+    padding: 0 16px;
+  }
+}
+
+.back-link {
+  margin-top: 10px;
+  display: inline-flex;
+  color: #2f5f96;
+  font-weight: 700;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+.status-message {
+  text-align: center;
+  padding: 32px 16px;
+  font-size: 14px;
+  color: #6a788d;
+
+  &.error {
+    color: #c73f28;
+  }
+}
+
+.detail-card {
+  margin-top: 12px;
+  border: 1px solid #e8edf4;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 4px 14px rgba(19, 39, 67, 0.05);
+  padding: 16px;
+  display: grid;
+  gap: 12px;
+}
+
+.detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.detail-header h1 {
+  margin: 0;
+  color: #131f33;
+  font-size: 28px;
+  font-weight: 800;
+}
+
+.status-pill {
+  border-radius: 999px;
+  padding: 6px 11px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  background: #e8eef8;
+  color: #486fa0;
+}
+
+.status-pill.status-approved {
+  background: #d4f0dd;
+  color: #0b6d3e;
+}
+
+.status-pill.status-warning {
+  background: #fef5e8;
+  color: #b8600a;
+}
+
+.status-pill.status-error {
+  background: #f9e5e5;
+  color: #ae2f2f;
+}
+
+.status-pill.status-unknown {
+  background: #e8eef8;
+  color: #486fa0;
+}
+
+.location-line {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: #556781;
+}
+
+.meta-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+
+  @media (min-width: 768px) {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.meta-grid p {
+  margin: 0;
+  color: #4e5f77;
+  font-size: 14px;
+}
+
+.section-block h2 {
+  margin: 0 0 8px;
+  color: #1d2d43;
+  font-size: 18px;
+}
+
+.section-block ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.section-block li,
+.section-block p {
+  margin: 0;
+  color: #4f5f77;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.section-block li + li {
+  margin-top: 4px;
+}
+
+.section-block li {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}

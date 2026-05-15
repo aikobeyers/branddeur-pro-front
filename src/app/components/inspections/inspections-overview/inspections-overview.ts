@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 
 import { Branddeur } from '../../../models/branddeur';
@@ -33,8 +34,26 @@ interface VfsFontsModule {
 
 type ReportVariant = 'detailed' | 'compact';
 
+interface InspectionCardViewModel {
+  id: string;
+  doorName: string;
+  statusLabel: string;
+  statusCode: string;
+  buildingLabel: string;
+  floorLabel: string;
+  locationLabel: string;
+  inspectorLabel: string;
+  inspectionDateLabel: string;
+  inspectionTypeLabel: string;
+  conditionLabel: string;
+  problems: string[];
+  suggestedActions: string[];
+  nextInspectionLabel: string;
+}
+
 @Component({
   selector: 'app-inspections-overview',
+  imports: [RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './inspections-overview.html',
   styleUrl: './inspections-overview.scss'
@@ -50,6 +69,13 @@ export class InspectionsOverviewComponent {
   protected readonly selectedBuilding = signal('');
   protected readonly selectedReportVariant = signal<ReportVariant>('detailed');
   protected readonly generateError = signal<string | null>(null);
+  protected readonly cards = signal<InspectionCardViewModel[]>([]);
+  protected readonly isLoadingCards = signal(false);
+  protected readonly cardsError = signal<string | null>(null);
+
+  public constructor() {
+    void this.loadInspectionCards();
+  }
 
   protected async onDownload(): Promise<void> {
     await this.openBuildingSelection('detailed');
@@ -57,6 +83,98 @@ export class InspectionsOverviewComponent {
 
   protected async onDownloadCompact(): Promise<void> {
     await this.openBuildingSelection('compact');
+  }
+
+  protected statusClass(statusCode: string): string {
+    if (statusCode === 'A') {
+      return 'status-approved';
+    }
+
+    if (statusCode === 'B') {
+      return 'status-warning';
+    }
+
+    if (statusCode === 'C') {
+      return 'status-error';
+    }
+
+    return 'status-unknown';
+  }
+
+  private async loadInspectionCards(): Promise<void> {
+    this.isLoadingCards.set(true);
+    this.cardsError.set(null);
+
+    try {
+      const [branddeuren, inspections] = await Promise.all([
+        firstValueFrom(this.branddeurenService.getAllBranddeuren()),
+        firstValueFrom(this.branddeurenService.getBranddeurInspecties())
+      ]);
+
+      this.branddeurenById = new Map((branddeuren ?? []).map(branddeur => [branddeur._id, branddeur]));
+
+      const latestByDoor = new Map<string, BranddeurInspectie>();
+      for (const inspection of inspections ?? []) {
+        const branddeurId = this.getInspectionBranddeurId(inspection);
+        if (!branddeurId) {
+          continue;
+        }
+
+        const existing = latestByDoor.get(branddeurId);
+        if (!existing || this.getInspectionSortTime(inspection) > this.getInspectionSortTime(existing)) {
+          latestByDoor.set(branddeurId, inspection);
+        }
+      }
+
+      const cards = Array.from(latestByDoor.values())
+        .map(inspection => this.toInspectionCard(inspection))
+        .sort((a, b) => b.sortTime - a.sortTime)
+        .map(({ sortTime: _sortTime, ...card }) => card);
+
+      this.cards.set(cards);
+    } catch (error) {
+      console.error('Inspections overview load failed', error);
+      this.cardsError.set('Inspectiekaarten laden is mislukt. Probeer het opnieuw.');
+    } finally {
+      this.isLoadingCards.set(false);
+    }
+  }
+
+  private toInspectionCard(inspection: BranddeurInspectie): InspectionCardViewModel & { sortTime: number } {
+    const branddeurId = this.getInspectionBranddeurId(inspection);
+    const branddeur = branddeurId ? this.branddeurenById.get(branddeurId) : undefined;
+
+    return {
+      id: inspection._id,
+      doorName: this.getDoorLabel(inspection),
+      statusLabel: inspection.inspectionResult?.statusValue || 'Onbekend',
+      statusCode: inspection.inspectionResult?.statusCode || '',
+      buildingLabel: this.normalizeBuildingValue(branddeur?.building) || 'Onbekend',
+      floorLabel: this.getInspectionFloor(inspection),
+      locationLabel: this.getInspectionLocation(inspection),
+      inspectorLabel: (inspection.inspectorName || '').trim() || 'Onbekend',
+      inspectionDateLabel: this.formatDate(inspection.inspectionDate),
+      inspectionTypeLabel: (inspection.inspectionType || '').trim() || '-',
+      conditionLabel: (inspection.generalCondition || '').trim() || '-',
+      problems: inspection.foundProblems ?? [],
+      suggestedActions: inspection.suggestedActions ?? [],
+      nextInspectionLabel: this.formatDate(inspection.nextInspection),
+      sortTime: this.getInspectionSortTime(inspection)
+    };
+  }
+
+  private getInspectionSortTime(inspection: BranddeurInspectie): number {
+    const primary = Date.parse(inspection.inspectionDate || '');
+    if (!Number.isNaN(primary)) {
+      return primary;
+    }
+
+    const fallback = Date.parse(inspection.createdAt || '');
+    if (!Number.isNaN(fallback)) {
+      return fallback;
+    }
+
+    return 0;
   }
 
   private async openBuildingSelection(reportVariant: ReportVariant): Promise<void> {
