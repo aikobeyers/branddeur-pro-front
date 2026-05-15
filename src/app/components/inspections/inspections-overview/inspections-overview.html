@@ -3,12 +3,50 @@
     type="button"
     class="download-button"
     (click)="onDownload()"
-    [disabled]="isGenerating()"
+    [disabled]="isGenerating() || isLoadingBuildings()"
   >
-    {{ isGenerating() ? 'Genereren...' : 'Download' }}
+    {{ isGenerating() ? 'Genereren...' : (isLoadingBuildings() ? 'Gebouwen laden...' : 'Download') }}
   </button>
 
   @if (generateError()) {
     <p class="download-error">{{ generateError() }}</p>
+  }
+
+  @if (isBuildingModalOpen()) {
+    <div class="modal-backdrop" (click)="closeBuildingModal()" aria-hidden="true"></div>
+
+    <section class="building-modal" role="dialog" aria-modal="true" aria-labelledby="building-modal-title">
+      <h2 id="building-modal-title">Kies een gebouw</h2>
+
+      <label for="building-select">Gebouw</label>
+      <select
+        id="building-select"
+        [value]="selectedBuilding()"
+        (change)="onBuildingSelected($event)"
+      >
+        @for (building of buildingOptions(); track building) {
+          <option [value]="building">{{ building }}</option>
+        }
+      </select>
+
+      <div class="modal-actions">
+        <button
+          type="button"
+          class="secondary"
+          (click)="closeBuildingModal()"
+          [disabled]="isGenerating()"
+        >
+          Annuleren
+        </button>
+        <button
+          type="button"
+          class="primary"
+          (click)="confirmBuildingAndDownload()"
+          [disabled]="isGenerating()"
+        >
+          {{ isGenerating() ? 'Genereren...' : 'Download PDF' }}
+        </button>
+      </div>
+    </section>
   }
 </section>

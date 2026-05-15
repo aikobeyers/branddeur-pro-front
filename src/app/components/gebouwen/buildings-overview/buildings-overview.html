@@ -1,0 +1,70 @@
+<section class="buildings-overview">
+  <div class="overview-wrapper">
+    <header class="overview-header">
+      <div class="title-block">
+        <span class="title-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M3 20H21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            <path d="M5 20V8L12 4L19 8V20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+            <path d="M9 20V13H15V20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+          </svg>
+        </span>
+
+        <div>
+          <h1>Gebouwen Overzicht</h1>
+          <p class="subtitle">Bekijk alle gebouwen met beschikbare verdiepingen en locaties</p>
+        </div>
+      </div>
+    </header>
+
+    @if (gebouwenResource.isLoading()) {
+      <p class="status-message">Laden...</p>
+    } @else if (gebouwenResource.error()) {
+      <p class="status-message error">Er ging iets mis bij het laden van gebouwen.</p>
+    } @else if (cards().length === 0) {
+      <p class="status-message">Geen gebouwen gevonden.</p>
+    } @else {
+      <div class="card-grid">
+        @for (gebouw of cards(); track gebouw.id) {
+          <article class="building-card">
+            <header class="card-header">
+              <h2 class="card-title">{{ gebouw.name }}</h2>
+              <span class="status-pill">Actief</span>
+            </header>
+
+            <div class="chip-row">
+              <span class="chip">{{ gebouw.floorCount }} verdiepingen</span>
+              <span class="chip">{{ gebouw.locationCount }} locaties</span>
+            </div>
+
+            <div class="detail-section">
+              <p class="section-title">Verdiepingen</p>
+              @if (gebouw.floors.length > 0) {
+                <div class="list-row">
+                  @for (floor of gebouw.floors; track floor) {
+                    <span class="list-chip">{{ floor }}</span>
+                  }
+                </div>
+              } @else {
+                <p class="empty-value">Geen verdiepingen bekend</p>
+              }
+            </div>
+
+            <div class="detail-section">
+              <p class="section-title">Locaties</p>
+              @if (gebouw.locations.length > 0) {
+                <div class="list-row">
+                  @for (location of gebouw.locations; track location) {
+                    <span class="list-chip">{{ location }}</span>
+                  }
+                </div>
+              } @else {
+                <p class="empty-value">Geen locaties bekend</p>
+              }
+            </div>
+          </article>
+        }
+      </div>
+    }
+  </div>
+</section>

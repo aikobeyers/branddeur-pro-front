@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 
+import { Branddeur } from '../../../models/branddeur';
 import { BranddeurInspectie, CheckListItemResult } from '../../../models/branddeur-inspectie';
 import { InspectieChecklistCategory, InspectieChecklistItem } from '../../../models/inspectie-checklist-item';
 import { BranddeurenService } from '../../../services/branddeuren.service';
@@ -38,12 +39,68 @@ interface VfsFontsModule {
 })
 export class InspectionsOverviewComponent {
   private readonly branddeurenService = inject(BranddeurenService);
+  private branddeurenById = new Map<string, Branddeur>();
 
   protected readonly isGenerating = signal(false);
+  protected readonly isLoadingBuildings = signal(false);
+  protected readonly isBuildingModalOpen = signal(false);
+  protected readonly buildingOptions = signal<string[]>([]);
+  protected readonly selectedBuilding = signal('');
   protected readonly generateError = signal<string | null>(null);
 
   protected async onDownload(): Promise<void> {
-    if (this.isGenerating()) {
+    if (this.isGenerating() || this.isLoadingBuildings()) {
+      return;
+    }
+
+    this.isLoadingBuildings.set(true);
+    this.generateError.set(null);
+
+    try {
+      const branddeuren = await firstValueFrom(this.branddeurenService.getAllBranddeuren());
+      this.branddeurenById = new Map((branddeuren ?? []).map(branddeur => [branddeur._id, branddeur]));
+
+      const uniqueBuildings = Array.from(
+        new Set(
+          (branddeuren ?? [])
+            .map(branddeur => this.normalizeBuildingValue(branddeur.building))
+            .filter((building): building is string => building.length > 0)
+        )
+      ).sort((a, b) => a.localeCompare(b, 'nl-NL'));
+
+      if (uniqueBuildings.length === 0) {
+        this.generateError.set('Er zijn geen gebouwen beschikbaar om op te filteren.');
+        return;
+      }
+
+      this.buildingOptions.set(uniqueBuildings);
+      this.selectedBuilding.set(uniqueBuildings[0]);
+      this.isBuildingModalOpen.set(true);
+    } catch (error) {
+      console.error('Building selection failed', error);
+      this.generateError.set('Gebouwopties ophalen is mislukt. Probeer het opnieuw.');
+    } finally {
+      this.isLoadingBuildings.set(false);
+    }
+  }
+
+  protected onBuildingSelected(event: Event): void {
+    const target = event.target as HTMLSelectElement | null;
+    if (!target) {
+      return;
+    }
+
+    this.selectedBuilding.set(target.value);
+  }
+
+  protected closeBuildingModal(): void {
+    this.isBuildingModalOpen.set(false);
+  }
+
+  protected async confirmBuildingAndDownload(): Promise<void> {
+    const building = this.normalizeBuildingValue(this.selectedBuilding());
+
+    if (!building || this.isGenerating()) {
       return;
     }
 
@@ -56,9 +113,12 @@ export class InspectionsOverviewComponent {
         firstValueFrom(this.branddeurenService.getInspectieChecklistItems())
       ]);
       const checklistLookup = this.buildChecklistLookup(checklistItems ?? []);
+      const filteredInspections = (inspections ?? []).filter(
+        inspection => this.getInspectionBuilding(inspection) === building
+      );
 
-      if (!inspections || inspections.length === 0) {
-        this.generateError.set('Er zijn geen inspecties beschikbaar om te exporteren.');
+      if (filteredInspections.length === 0) {
+        this.generateError.set('Er zijn geen inspecties beschikbaar voor het geselecteerde gebouw.');
         return;
       }
 
@@ -70,8 +130,9 @@ export class InspectionsOverviewComponent {
       const pdfMake = pdfMakeModule.default as PdfMakeInstance;
       this.configurePdfFonts(pdfMake, pdfFontsModule as unknown as VfsFontsModule);
 
-      const documentDefinition = this.buildDocumentDefinition(inspections, checklistLookup);
-      pdfMake.createPdf(documentDefinition).download('controleverslag-branddeuren.pdf');
+      const documentDefinition = this.buildDocumentDefinition(filteredInspections, checklistLookup, building);
+      pdfMake.createPdf(documentDefinition).download(this.getReportFileName(building));
+      this.isBuildingModalOpen.set(false);
     } catch (error) {
       console.error('PDF generation failed', error);
       this.generateError.set('PDF genereren is mislukt. Probeer het opnieuw.');
@@ -82,9 +143,12 @@ export class InspectionsOverviewComponent {
 
   private buildDocumentDefinition(
     inspections: BranddeurInspectie[],
-    checklistLookup: Map<string, InspectieChecklistItem>
+    checklistLookup: Map<string, InspectieChecklistItem>,
+    building: string
   ): TDocumentDefinitions {
     const content: Content[] = [];
+
+    content.push({ text: `Gebouw: ${building}`, style: 'subSectionTitle', margin: [0, 0, 0, 8] });
 
     inspections.forEach((inspection, index) => {
       const sectionContent = this.buildInspectionContent(inspection, checklistLookup);
@@ -341,11 +405,44 @@ export class InspectionsOverviewComponent {
 
   private getDoorLabel(inspection: BranddeurInspectie): string {
     if (typeof inspection.branddeurId === 'string') {
-      return inspection.branddeurId;
+      const branddeur = this.branddeurenById.get(inspection.branddeurId);
+      return branddeur?.name || inspection.branddeurId;
     }
 
     const populatedBranddeur = inspection.branddeurId as unknown as { name?: string; _id?: string };
     return populatedBranddeur.name || populatedBranddeur._id || '-';
+  }
+
+  private getInspectionBranddeurId(inspection: BranddeurInspectie): string | undefined {
+    if (typeof inspection.branddeurId === 'string') {
+      return inspection.branddeurId;
+    }
+
+    const populatedBranddeur = inspection.branddeurId as unknown as { _id?: string };
+    return populatedBranddeur._id;
+  }
+
+  private getInspectionBuilding(inspection: BranddeurInspectie): string {
+    const branddeurId = this.getInspectionBranddeurId(inspection);
+    if (!branddeurId) {
+      return '';
+    }
+
+    const branddeur = this.branddeurenById.get(branddeurId);
+    return this.normalizeBuildingValue(branddeur?.building);
+  }
+
+  private normalizeBuildingValue(building: string | undefined): string {
+    return (building || '').trim();
+  }
+
+  private getReportFileName(building: string): string {
+    const slug = building
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+
+    return `controleverslag-branddeuren-${slug || 'gebouw'}.pdf`;
   }
 
   private buildChecklistLookup(items: InspectieChecklistItem[]): Map<string, InspectieChecklistItem> {
