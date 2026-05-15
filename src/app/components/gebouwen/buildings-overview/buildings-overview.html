@@ -41,8 +41,15 @@
             </header>
 
             <div class="chip-row">
+              <span class="chip">{{ gebouw.doorStats.total }} branddeuren</span>
               <span class="chip">{{ gebouw.floorCount }} verdiepingen</span>
               <span class="chip">{{ gebouw.locationCount }} locaties</span>
+            </div>
+
+            <div class="status-row">
+              <span class="status-pill status-approved">{{ gebouw.doorStats.approvedLabel }} - {{ gebouw.doorStats.approved }}</span>
+              <span class="status-pill status-warning">{{ gebouw.doorStats.warningLabel }} - {{ gebouw.doorStats.warning }}</span>
+              <span class="status-pill status-error">{{ gebouw.doorStats.errorLabel }} - {{ gebouw.doorStats.error }}</span>
             </div>
 
             <div class="detail-section">

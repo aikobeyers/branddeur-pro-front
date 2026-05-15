@@ -195,15 +195,34 @@ h1 {
   letter-spacing: 0.005em;
 }
 
+.status-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 .status-pill {
   border-radius: 999px;
-  padding: 6px 11px;
+  padding: 5px 11px;
   font-size: 11px;
   font-weight: 700;
   line-height: 1;
   white-space: nowrap;
-  background: #d4f0dd;
-  color: #0b6d3e;
+
+  &.status-approved {
+    background: #d4f0dd;
+    color: #0b6d3e;
+  }
+
+  &.status-warning {
+    background: #fff0d6;
+    color: #9a5a00;
+  }
+
+  &.status-error {
+    background: #fde8e8;
+    color: #b91c1c;
+  }
 }
 
 .chip-row {
