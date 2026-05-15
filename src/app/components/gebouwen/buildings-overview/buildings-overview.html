@@ -15,7 +15,16 @@
           <p class="subtitle">Bekijk alle gebouwen met beschikbare verdiepingen en locaties</p>
         </div>
       </div>
+
+      <button class="new-building-button" type="button" (click)="openCreateModal()">
+        <span class="plus" aria-hidden="true">+</span>
+        <span class="button-text">Nieuw gebouw</span>
+      </button>
     </header>
+
+    @if (isModalOpen()) {
+      <app-building-create-modal (close)="closeModal()" (created)="handleCreated()" />
+    }
 
     @if (gebouwenResource.isLoading()) {
       <p class="status-message">Laden...</p>
@@ -29,7 +38,6 @@
           <article class="building-card">
             <header class="card-header">
               <h2 class="card-title">{{ gebouw.name }}</h2>
-              <span class="status-pill">Actief</span>
             </header>
 
             <div class="chip-row">

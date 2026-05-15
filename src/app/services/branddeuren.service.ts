@@ -5,10 +5,12 @@ import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { Branddeur, CreateBranddeurRequest } from '../models/branddeur';
 import { BranddeurInspectie, CreateBranddeurInspectieRequest } from '../models/branddeur-inspectie';
+import { CreateGebouwRequest, Gebouw } from '../models/gebouw';
 import { InspectieChecklistItem } from '../models/inspectie-checklist-item';
 
 const BASE_URL: string = environment.baseUrl;
 const BRANDDEUREN_SUFFIX: string = '/branddeuren';
+const GEBOUWEN_SUFFIX: string = '/gebouwen';
 const INSPECTIE_CHECKLIST_ITEMS_SUFFIX: string = '/inspectie-checklist-items';
 const BRANDDEUR_INSPECTIES_SUFFIX: string = '/branddeur-inspecties';
 
@@ -28,6 +30,10 @@ export class BranddeurenService {
 
   public updateBranddeur(id: string, request: CreateBranddeurRequest): Observable<Branddeur> {
     return this.http.put<Branddeur>(`${BASE_URL}${BRANDDEUREN_SUFFIX}/${id}`, request);
+  }
+
+  public createGebouw(request: CreateGebouwRequest): Observable<Gebouw> {
+    return this.http.post<Gebouw>(`${BASE_URL}${GEBOUWEN_SUFFIX}`, request);
   }
 
   public getInspectieChecklistItems(): Observable<InspectieChecklistItem[]> {

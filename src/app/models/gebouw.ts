@@ -4,3 +4,9 @@ export interface Gebouw {
   floor: string[];
   location: string[];
 }
+
+export interface CreateGebouwRequest {
+  name: string;
+  floor?: string[];
+  location?: string[];
+}

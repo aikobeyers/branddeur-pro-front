@@ -1,7 +1,8 @@
-import { ChangeDetectionStrategy, Component, computed } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, Injector, signal } from '@angular/core';
 import { httpResource } from '@angular/common/http';
 
 import { environment } from '../../../../environments/environment';
+import { BuildingCreateModal } from '../building-create-modal/building-create-modal';
 import { Gebouw } from '../../../models/gebouw';
 
 interface GebouwCardViewModel {
@@ -15,11 +16,15 @@ interface GebouwCardViewModel {
 
 @Component({
   selector: 'app-buildings-overview',
+  imports: [BuildingCreateModal],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './buildings-overview.html',
   styleUrl: './buildings-overview.scss',
 })
 export class BuildingsOverview {
+  private readonly injector = inject(Injector);
+  protected readonly isModalOpen = signal(false);
+
   protected readonly gebouwenResource = httpResource<Gebouw[]>(() => ({
     url: `${environment.baseUrl}/gebouwen`,
     method: 'GET'
@@ -40,6 +45,28 @@ export class BuildingsOverview {
       };
     })
   );
+
+  public constructor() {
+    effect(() => {
+      const modalOpen = this.isModalOpen();
+      if (typeof document !== 'undefined') {
+        document.documentElement.style.overflow = modalOpen ? 'hidden' : '';
+      }
+    }, { injector: this.injector });
+  }
+
+  protected openCreateModal(): void {
+    this.isModalOpen.set(true);
+  }
+
+  protected closeModal(): void {
+    this.isModalOpen.set(false);
+  }
+
+  protected handleCreated(): void {
+    this.isModalOpen.set(false);
+    this.gebouwenResource.reload();
+  }
 
   private cleanStringList(values: string[] | undefined): string[] {
     if (!values || values.length === 0) {

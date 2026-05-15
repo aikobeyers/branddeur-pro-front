@@ -1,0 +1,76 @@
+<div class="modal-backdrop" (click)="onBackdropClick()">
+  <section class="modal-panel" role="dialog" aria-modal="true" aria-label="Nieuw gebouw" (click)="$event.stopPropagation()">
+    <header class="panel-header">
+      <h2>Nieuw gebouw</h2>
+      <button type="button" class="close-button" aria-label="Sluiten" (click)="onCancel()">x</button>
+    </header>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="panel-form">
+      <label>
+        <span>Naam <span class="required">*</span></span>
+        <input type="text" formControlName="name" placeholder="Bijv. Hoofdgebouw A" />
+      </label>
+
+      <div class="multi-field">
+        <label>
+          <span>Verdieping</span>
+          <div class="array-input-row">
+            <input #floorInput type="text" formControlName="floorInput" placeholder="Bijv. Begane grond" />
+            <button type="button" class="add-button" (click)="addFloor(floorInput.value)">Toevoegen</button>
+          </div>
+        </label>
+
+        @if (floors().length > 0) {
+          <div class="items-list">
+            @for (floor of floors(); track $index) {
+              <div class="item-pill">
+                <span>{{ floor }}</span>
+                <button type="button" class="remove-button" (click)="removeFloor($index)" aria-label="Verwijder verdieping">x</button>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="multi-field">
+        <label>
+          <span>Locatie</span>
+          <div class="array-input-row">
+            <input #locationInput type="text" formControlName="locationInput" placeholder="Bijv. Gang Zuid" />
+            <button type="button" class="add-button" (click)="addLocation(locationInput.value)">Toevoegen</button>
+          </div>
+        </label>
+
+        @if (locations().length > 0) {
+          <div class="items-list">
+            @for (location of locations(); track $index) {
+              <div class="item-pill">
+                <span>{{ location }}</span>
+                <button type="button" class="remove-button" (click)="removeLocation($index)" aria-label="Verwijder locatie">x</button>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      @if (form.controls.name.touched && form.controls.name.invalid) {
+        <p class="error-text">Naam is verplicht.</p>
+      }
+
+      @if (submitError()) {
+        <p class="error-text">{{ submitError() }}</p>
+      }
+
+      <footer class="panel-actions">
+        <button type="button" class="ghost" (click)="onCancel()" [disabled]="isSubmitting()">Annuleren</button>
+        <button type="submit" class="primary" [disabled]="isSubmitting()">
+          @if (isSubmitting()) {
+            Opslaan...
+          } @else {
+            Opslaan
+          }
+        </button>
+      </footer>
+    </form>
+  </section>
+</div>
