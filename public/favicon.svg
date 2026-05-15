@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="BrandDeur Pro">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#2a83d8"/>
+      <stop offset="100%" stop-color="#1f6fb9"/>
+    </linearGradient>
+  </defs>
+  <rect x="4" y="4" width="56" height="56" rx="14" fill="url(#bg)"/>
+  <path d="M32 15L45 20.5V30.8C45 39 39.4 46.2 32 48.8C24.6 46.2 19 39 19 30.8V20.5L32 15Z" fill="none" stroke="#ffffff" stroke-width="4.8" stroke-linejoin="round"/>
+</svg>

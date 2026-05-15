@@ -14,23 +14,28 @@ export const routes: Routes = [
 	},
 	{
 		path: 'branddeuren-overzicht',
-		component: FireDoorsOverview
+		component: FireDoorsOverview,
+		title: 'Branddeuren'
 	},
 	{
 		path: 'gebouwen',
-		component: BuildingsOverview
+		component: BuildingsOverview,
+		title: 'Gebouwen'
 	},
 	{
 		path: 'inspecties-overzicht',
-		component: InspectionsOverviewComponent
+		component: InspectionsOverviewComponent,
+		title: 'Inspecties'
 	},
 	{
 		path: 'inspecties-overzicht/:id',
-		component: InspectionDetailComponent
+		component: InspectionDetailComponent,
+		title: 'Inspectie details'
 	},
 	{
 		path: 'nieuwe-inspectie',
 		component: NewInspectionComponent,
+		title: 'Nieuwe inspectie',
 		resolve: {
 			checklistItems: inspectieChecklistItemsResolver
 		}
