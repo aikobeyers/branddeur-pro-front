@@ -5,6 +5,7 @@ import { forkJoin, fromEvent, Observable, of } from 'rxjs';
 
 import { BranddeurenService } from '../../../services/branddeuren.service';
 import { Branddeur } from '../../../models/branddeur';
+import { Gebouw } from '../../../models/gebouw';
 
 @Component({
   selector: 'app-firedoor-create-modal',
@@ -27,6 +28,10 @@ export class FiredoorCreateModal {
   protected readonly submitError = signal<string | null>(null);
   protected readonly isEditMode = signal(false);
   protected readonly hasMostRecentInspection = computed(() => !!this.branddeurToEdit()?.mostRecentInspection?._id);
+  protected readonly gebouwen = signal<Gebouw[]>([]);
+  protected readonly isLoadingGebouwen = signal(false);
+  protected readonly floorOptions = signal<string[]>([]);
+  protected readonly locationOptions = signal<string[]>([]);
   private readonly lastPopulatedBranddeurId = signal<string | null>(null);
 
   protected readonly form = this.formBuilder.nonNullable.group({
@@ -42,6 +47,9 @@ export class FiredoorCreateModal {
   });
 
   public constructor() {
+    this.form.controls.floor.disable({ emitEvent: false });
+    this.form.controls.location.disable({ emitEvent: false });
+
     // Populate form when editing, but only once per branddeur to avoid overwriting user edits
     effect(() => {
       const branddeur = this.branddeurToEdit();
@@ -65,13 +73,27 @@ export class FiredoorCreateModal {
             location: branddeur.location || '',
             manufacturer: branddeur.manufacturer || ''
           });
+
+          // Avoid clearing floor/location during edit before gebouwen are loaded.
+          if (this.gebouwen().length > 0) {
+            this.syncBuildingDependentControls();
+          }
         }
       } else {
         this.isEditMode.set(false);
         this.lastPopulatedBranddeurId.set(null);
         this.form.reset();
+        this.syncBuildingDependentControls();
       }
     }, { injector: this.injector });
+
+    this.loadGebouwen();
+
+    this.form.controls.building.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.syncBuildingDependentControls();
+      });
 
     if (typeof window !== 'undefined') {
       fromEvent<KeyboardEvent>(window, 'keydown')
@@ -82,6 +104,81 @@ export class FiredoorCreateModal {
           }
         });
     }
+  }
+
+  private loadGebouwen(): void {
+    this.isLoadingGebouwen.set(true);
+
+    this.branddeurenService.getGebouwen()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (gebouwen) => {
+          this.gebouwen.set(gebouwen ?? []);
+          this.ensureSelectedBuildingExists();
+          this.syncBuildingDependentControls();
+          this.isLoadingGebouwen.set(false);
+        },
+        error: () => {
+          this.gebouwen.set([]);
+          this.syncBuildingDependentControls();
+          this.isLoadingGebouwen.set(false);
+          this.submitError.set('Gebouwen laden is mislukt. Probeer het opnieuw.');
+        }
+      });
+  }
+
+  private ensureSelectedBuildingExists(): void {
+    const buildingValue = this.form.controls.building.value;
+    if (!buildingValue) {
+      return;
+    }
+
+    const isKnownBuilding = this.gebouwen().some(gebouw => gebouw.name === buildingValue);
+    if (!isKnownBuilding) {
+      this.form.controls.building.setValue('');
+    }
+  }
+
+  private syncBuildingDependentControls(): void {
+    const buildingValue = this.form.controls.building.value;
+    const selectedGebouw = this.gebouwen().find(gebouw => gebouw.name === buildingValue) ?? null;
+
+    if (!selectedGebouw) {
+      this.floorOptions.set([]);
+      this.locationOptions.set([]);
+      this.form.controls.floor.setValue('');
+      this.form.controls.location.setValue('');
+      this.form.controls.floor.disable({ emitEvent: false });
+      this.form.controls.location.disable({ emitEvent: false });
+      return;
+    }
+
+    const floors = this.cleanStringList(selectedGebouw.floor);
+    const locations = this.cleanStringList(selectedGebouw.location);
+
+    this.floorOptions.set(floors);
+    this.locationOptions.set(locations);
+
+    this.form.controls.floor.enable({ emitEvent: false });
+    this.form.controls.location.enable({ emitEvent: false });
+
+    if (this.form.controls.floor.value && !floors.includes(this.form.controls.floor.value)) {
+      this.form.controls.floor.setValue('');
+    }
+
+    if (this.form.controls.location.value && !locations.includes(this.form.controls.location.value)) {
+      this.form.controls.location.setValue('');
+    }
+  }
+
+  private cleanStringList(values: string[] | undefined): string[] {
+    if (!values || values.length === 0) {
+      return [];
+    }
+
+    return values
+      .map(value => value?.trim())
+      .filter((value): value is string => !!value);
   }
 
   protected onBackdropClick(): void {

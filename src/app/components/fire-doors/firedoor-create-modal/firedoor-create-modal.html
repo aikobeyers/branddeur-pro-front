@@ -39,17 +39,36 @@
 
       <label>
         <span>Gebouw</span>
-        <input type="text" formControlName="building" placeholder="Bijv. Hoofdgebouw A" />
+        <select formControlName="building">
+          @if (isLoadingGebouwen()) {
+            <option value="" disabled>Gebouwen laden...</option>
+          } @else {
+            <option value="">Selecteer een gebouw</option>
+            @for (gebouw of gebouwen(); track gebouw._id) {
+              <option [value]="gebouw.name">{{ gebouw.name }}</option>
+            }
+          }
+        </select>
       </label>
 
       <label>
         <span>Verdieping</span>
-        <input type="text" formControlName="floor" placeholder="Bijv. Begane grond" />
+        <select formControlName="floor">
+          <option value="">Selecteer een verdieping</option>
+          @for (floor of floorOptions(); track floor) {
+            <option [value]="floor">{{ floor }}</option>
+          }
+        </select>
       </label>
 
       <label>
         <span>Locatie</span>
-        <input type="text" formControlName="location" placeholder="Bijv. Gang Zuid, kamer 101-102" />
+        <select formControlName="location">
+          <option value="">Selecteer een locatie</option>
+          @for (location of locationOptions(); track location) {
+            <option [value]="location">{{ location }}</option>
+          }
+        </select>
       </label>
 
       <label>

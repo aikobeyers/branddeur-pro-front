@@ -36,6 +36,10 @@ export class BranddeurenService {
     return this.http.post<Gebouw>(`${BASE_URL}${GEBOUWEN_SUFFIX}`, request);
   }
 
+  public getGebouwen(): Observable<Gebouw[]> {
+    return this.http.get<Gebouw[]>(`${BASE_URL}${GEBOUWEN_SUFFIX}`);
+  }
+
   public getInspectieChecklistItems(): Observable<InspectieChecklistItem[]> {
     return this.http.get<InspectieChecklistItem[]>(`${BASE_URL}${INSPECTIE_CHECKLIST_ITEMS_SUFFIX}`);
   }
