@@ -177,4 +177,20 @@
       <button type="submit" class="primary-button">Inspectie Opslaan</button>
     </div>
   </form>
+
+  @if (submitSuccess()) {
+    <div class="success-modal-backdrop" (click)="closeSuccessModal()" aria-hidden="true"></div>
+
+    <section class="success-modal" role="dialog" aria-modal="true" aria-labelledby="success-modal-title">
+      <div class="success-icon" aria-hidden="true">✓</div>
+      <h2 id="success-modal-title">Inspectie opgeslagen</h2>
+      <p>De inspectie is succesvol aangemaakt.</p>
+
+      <div class="success-modal-actions">
+        <button type="button" class="primary-button" (click)="closeSuccessModal()">
+          Sluiten
+        </button>
+      </div>
+    </section>
+  }
 </div>

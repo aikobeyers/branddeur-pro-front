@@ -171,6 +171,7 @@ export class NewInspectionComponent {
       nextInspection,
     };
 
+    this.submitSuccess.set(false);
     this.isSubmitting.set(true);
     this.submitError.set(null);
 
@@ -189,6 +190,10 @@ export class NewInspectionComponent {
           console.error(err);
         }
       });
+  }
+
+  protected closeSuccessModal(): void {
+    this.submitSuccess.set(false);
   }
 
   private getDefaultInspectionDate(branddeurId: string): string | null {
