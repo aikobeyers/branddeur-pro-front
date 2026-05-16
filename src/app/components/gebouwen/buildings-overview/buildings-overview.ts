@@ -8,18 +8,15 @@ import { Branddeur } from '../../../models/branddeur';
 
 const STATUS_LABELS: Record<string, string> = {
   A: 'Goedgekeurd',
-  B: 'Herstel nodig',
-  C: 'Afgekeurd',
+  B: 'Afgekeurd',
 };
 
 interface DoorStatusCounts {
   total: number;
   approved: number;
   approvedLabel: string;
-  warning: number;
-  warningLabel: string;
-  error: number;
-  errorLabel: string;
+  rejected: number;
+  rejectedLabel: string;
 }
 
 interface GebouwCardViewModel {
@@ -65,10 +62,14 @@ export class BuildingsOverview {
         total: doorsInBuilding.length,
         approved: doorsInBuilding.filter(d => d.mostRecentInspection?.inspectionResult?.statusCode === 'A').length,
         approvedLabel: doorsInBuilding.find(d => d.mostRecentInspection?.inspectionResult?.statusCode === 'A')?.mostRecentInspection?.inspectionResult?.statusValue || STATUS_LABELS['A'],
-        warning: doorsInBuilding.filter(d => d.mostRecentInspection?.inspectionResult?.statusCode === 'B').length,
-        warningLabel: doorsInBuilding.find(d => d.mostRecentInspection?.inspectionResult?.statusCode === 'B')?.mostRecentInspection?.inspectionResult?.statusValue || STATUS_LABELS['B'],
-        error: doorsInBuilding.filter(d => d.mostRecentInspection?.inspectionResult?.statusCode === 'C').length,
-        errorLabel: doorsInBuilding.find(d => d.mostRecentInspection?.inspectionResult?.statusCode === 'C')?.mostRecentInspection?.inspectionResult?.statusValue || STATUS_LABELS['C'],
+        rejected: doorsInBuilding.filter(d => {
+          const statusCode = d.mostRecentInspection?.inspectionResult?.statusCode as string | undefined;
+          return statusCode === 'B' || statusCode === 'C';
+        }).length,
+        rejectedLabel: doorsInBuilding.find(d => {
+          const statusCode = d.mostRecentInspection?.inspectionResult?.statusCode as string | undefined;
+          return statusCode === 'B' || statusCode === 'C';
+        })?.mostRecentInspection?.inspectionResult?.statusValue || STATUS_LABELS['B'],
       };
 
       return {

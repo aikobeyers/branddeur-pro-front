@@ -19,8 +19,7 @@ interface ChecklistItemsGroup {
 
 const INSPECTION_STATUS_VALUES: Record<InspectionStatusCode, InspectionStatusValue> = {
   A: 'Goedgekeurd',
-  B: 'Herstel nodig',
-  C: 'Afgekeurd',
+  B: 'Afgekeurd',
 };
 
 @Component({

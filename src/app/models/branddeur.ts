@@ -1,7 +1,7 @@
 import { BranddeurInspectie } from "./branddeur-inspectie";
 
 export interface BranddeurStatus {
-  statusCode: 'A' | 'B' | 'C';
+  statusCode: 'A' | 'B';
   statusValue: string;
 }
 

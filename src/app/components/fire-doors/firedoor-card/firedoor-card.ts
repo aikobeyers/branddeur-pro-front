@@ -67,8 +67,7 @@ export class FiredoorCard {
     const inspection = this.branddeur().mostRecentInspection;
     const statusCode = inspection?.inspectionResult?.statusCode;
     if (statusCode === 'A') return 'status-approved';
-    if (statusCode === 'B') return 'status-warning';
-    if (statusCode === 'C') return 'status-error';
+    if (statusCode === 'B' || statusCode === 'C') return 'status-error';
     return 'status-unknown';
   });
 

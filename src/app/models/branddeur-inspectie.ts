@@ -1,7 +1,7 @@
 import { InspectieChecklistItem } from './inspectie-checklist-item';
 
-export type InspectionStatusCode = 'A' | 'B' | 'C';
-export type InspectionStatusValue = 'Goedgekeurd' | 'Herstel nodig' | 'Afgekeurd';
+export type InspectionStatusCode = 'A' | 'B';
+export type InspectionStatusValue = 'Goedgekeurd' | 'Afgekeurd';
 
 export interface InspectionResult {
   statusCode: InspectionStatusCode;

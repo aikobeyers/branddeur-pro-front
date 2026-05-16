@@ -90,11 +90,7 @@ export class InspectionsOverviewComponent {
       return 'status-approved';
     }
 
-    if (statusCode === 'B') {
-      return 'status-warning';
-    }
-
-    if (statusCode === 'C') {
+    if (statusCode === 'B' || statusCode === 'C') {
       return 'status-error';
     }
 
