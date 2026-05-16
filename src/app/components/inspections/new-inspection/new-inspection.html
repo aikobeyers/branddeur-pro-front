@@ -136,72 +136,74 @@
       </label>
     </section>
 
-    <!-- Gevonden Problemen Section -->
-    <section class="form-section">
+    @if (showsCorrectiveActionSections()) {
+      <!-- Gevonden Problemen Section -->
+      <section class="form-section">
       <h2>Vastgestelde afwijkingen</h2>
 
-      <div class="problem-input-group">
-        <textarea 
-          #problemTextarea
-          placeholder="Beschrijf een probleem..."
-          rows="4"
-        ></textarea>
-        <button type="button" class="add-button" (click)="addProblem(problemTextarea.value); problemTextarea.value = ''">
-          Toevoegen
-        </button>
-      </div>
-
-      @if (problems().length > 0) {
-        <div class="problems-list">
-          @for (problem of problems(); track $index) {
-            <div class="problem-item">
-              <span>{{ problem }}</span>
-              <button 
-                type="button" 
-                class="remove-button" 
-                (click)="removeProblem($index)"
-                aria-label="Verwijder probleem"
-              >
-                ×
-              </button>
-            </div>
-          }
+        <div class="problem-input-group">
+          <textarea 
+            #problemTextarea
+            placeholder="Beschrijf een probleem..."
+            rows="4"
+          ></textarea>
+          <button type="button" class="add-button" (click)="addProblem(problemTextarea.value); problemTextarea.value = ''">
+            Toevoegen
+          </button>
         </div>
-      }
-    </section>
 
-    <section class="form-section">
-      <h2>Aanbevolen corrigerende acties</h2>
+        @if (problems().length > 0) {
+          <div class="problems-list">
+            @for (problem of problems(); track $index) {
+              <div class="problem-item">
+                <span>{{ problem }}</span>
+                <button 
+                  type="button" 
+                  class="remove-button" 
+                  (click)="removeProblem($index)"
+                  aria-label="Verwijder probleem"
+                >
+                  ×
+                </button>
+              </div>
+            }
+          </div>
+        }
+      </section>
 
-      <div class="problem-input-group">
-        <textarea
-          #actionTextarea
-          placeholder="Beschrijf een aanbevolen actie..."
-          rows="4"
-        ></textarea>
-        <button type="button" class="add-button" (click)="addSuggestedAction(actionTextarea.value); actionTextarea.value = ''">
-          Toevoegen
-        </button>
-      </div>
+      <section class="form-section">
+        <h2>Aanbevolen corrigerende acties</h2>
 
-      @if (suggestedActions().length > 0) {
-        <div class="problems-list">
-          @for (action of suggestedActions(); track $index) {
-            <div class="problem-item">
-              <span>{{ action }}</span>
-              <button
-                type="button"
-                class="remove-button"
-                (click)="removeSuggestedAction($index)"
-                aria-label="Verwijder actie"
-              >
-                ×
-              </button>
-            </div>
-          }
+        <div class="problem-input-group">
+          <textarea
+            #actionTextarea
+            placeholder="Beschrijf een aanbevolen actie..."
+            rows="4"
+          ></textarea>
+          <button type="button" class="add-button" (click)="addSuggestedAction(actionTextarea.value); actionTextarea.value = ''">
+            Toevoegen
+          </button>
         </div>
-      }
-    </section>
+
+        @if (suggestedActions().length > 0) {
+          <div class="problems-list">
+            @for (action of suggestedActions(); track $index) {
+              <div class="problem-item">
+                <span>{{ action }}</span>
+                <button
+                  type="button"
+                  class="remove-button"
+                  (click)="removeSuggestedAction($index)"
+                  aria-label="Verwijder actie"
+                >
+                  ×
+                </button>
+              </div>
+            }
+          </div>
+        }
+      </section>
+    }
 
     <!-- Form Actions -->
     <div class="form-actions">

@@ -40,6 +40,7 @@ export class NewInspectionComponent {
   protected readonly isSubmitting = signal(false);
   protected readonly submitError = signal<string | null>(null);
   protected readonly submitSuccess = signal(false);
+  protected readonly selectedInspectionResult = signal<InspectionStatusCode>('A');
 
   protected readonly branddeurenResource = httpResource<Branddeur[]>(() => ({
     url: `${environment.baseUrl}/branddeuren`,
@@ -71,6 +72,9 @@ export class NewInspectionComponent {
 
     return Array.from(groups.values());
   });
+  protected readonly showsCorrectiveActionSections = computed(
+    () => this.selectedInspectionResult() === 'B'
+  );
 
   protected readonly form = this.formBuilder.nonNullable.group({
     branddeurId: ['', [Validators.required]],
@@ -86,6 +90,8 @@ export class NewInspectionComponent {
   });
 
   public constructor() {
+    this.selectedInspectionResult.set(this.form.controls.inspectionResult.getRawValue());
+
     // Set resolved checklist items from route
     this.checklistItems.set(this.activatedRoute.snapshot.data['checklistItems'] || []);
 
@@ -110,6 +116,17 @@ export class NewInspectionComponent {
         const defaultInspectionDate = this.getDefaultInspectionDate(branddeurId);
         if (defaultInspectionDate) {
           this.form.controls.inspectionDate.setValue(defaultInspectionDate);
+        }
+      });
+
+    this.form.controls.inspectionResult.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((inspectionResult) => {
+        this.selectedInspectionResult.set(inspectionResult);
+
+        if (inspectionResult !== 'B') {
+          this.problems.set([]);
+          this.suggestedActions.set([]);
         }
       });
   }
