@@ -46,8 +46,7 @@ interface InspectionCardViewModel {
   inspectionDateLabel: string;
   inspectionTypeLabel: string;
   conditionLabel: string;
-  problems: string[];
-  suggestedActions: string[];
+  repairsNeededFor: string[];
   nextInspectionLabel: string;
 }
 
@@ -152,11 +151,21 @@ export class InspectionsOverviewComponent {
       inspectionDateLabel: this.formatDate(inspection.inspectionDate),
       inspectionTypeLabel: (inspection.inspectionType || '').trim() || '-',
       conditionLabel: (inspection.generalCondition || '').trim() || '-',
-      problems: inspection.foundProblems ?? [],
-      suggestedActions: inspection.suggestedActions ?? [],
+      repairsNeededFor: this.getRepairsNeededFor(inspection),
       nextInspectionLabel: this.formatDate(inspection.nextInspection),
       sortTime: this.getInspectionSortTime(inspection)
     };
+  }
+
+  private getRepairsNeededFor(inspection: BranddeurInspectie): string[] {
+    if (inspection.repairsNeededFor?.length) {
+      return inspection.repairsNeededFor;
+    }
+
+    return [
+      ...(inspection.foundProblems ?? []),
+      ...(inspection.suggestedActions ?? [])
+    ];
   }
 
   private getInspectionSortTime(inspection: BranddeurInspectie): number {
@@ -451,19 +460,11 @@ export class InspectionsOverviewComponent {
       content.push(this.buildChecklistTable(items, checklistLookup));
     }
 
-    content.push({ text: 'Vastgestelde afwijkingen', style: 'subSectionTitle' });
-    if (inspection.foundProblems.length > 0) {
+    content.push({ text: 'Herstelling nodig aan', style: 'subSectionTitle' });
+    const repairsNeededFor = this.getRepairsNeededFor(inspection);
+    if (repairsNeededFor.length > 0) {
       content.push({
-        stack: inspection.foundProblems.map(problem => ({ text: `• ${problem}`, style: 'listItem' }))
-      });
-    } else {
-      content.push({ text: '/', style: 'listItem' });
-    }
-
-    content.push({ text: 'Aanbevolen corrigerende acties', style: 'subSectionTitle' });
-    if (inspection.suggestedActions.length > 0) {
-      content.push({
-        stack: inspection.suggestedActions.map(action => ({ text: `• ${action}`, style: 'listItem' }))
+        stack: repairsNeededFor.map(item => ({ text: `• ${item}`, style: 'listItem' }))
       });
     } else {
       content.push({ text: '/', style: 'listItem' });
@@ -480,21 +481,13 @@ export class InspectionsOverviewComponent {
         style: 'valueCell',
         margin: [0, 0, 0, 6]
       },
-      { text: 'Vastgestelde afwijkingen', style: 'subSectionTitle' }
+      { text: 'Herstelling nodig aan', style: 'subSectionTitle' }
     ];
 
-    if (inspection.foundProblems.length > 0) {
+    const repairsNeededFor = this.getRepairsNeededFor(inspection);
+    if (repairsNeededFor.length > 0) {
       content.push({
-        stack: inspection.foundProblems.map(problem => ({ text: `• ${problem}`, style: 'listItem' }))
-      });
-    } else {
-      content.push({ text: '/', style: 'listItem' });
-    }
-
-    content.push({ text: 'Aanbevolen corrigerende acties', style: 'subSectionTitle' });
-    if (inspection.suggestedActions.length > 0) {
-      content.push({
-        stack: inspection.suggestedActions.map(action => ({ text: `• ${action}`, style: 'listItem' }))
+        stack: repairsNeededFor.map(item => ({ text: `• ${item}`, style: 'listItem' }))
       });
     } else {
       content.push({ text: '/', style: 'listItem' });

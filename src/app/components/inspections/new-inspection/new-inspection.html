@@ -139,62 +139,29 @@
     @if (showsCorrectiveActionSections()) {
       <!-- Gevonden Problemen Section -->
       <section class="form-section">
-      <h2>Vastgestelde afwijkingen</h2>
+      <h2>Herstelling nodig aan</h2>
 
         <div class="problem-input-group">
           <textarea 
             #problemTextarea
-            placeholder="Beschrijf een probleem..."
+            placeholder="Beschrijf wat hersteld moet worden..."
             rows="4"
           ></textarea>
-          <button type="button" class="add-button" (click)="addProblem(problemTextarea.value); problemTextarea.value = ''">
+          <button type="button" class="add-button" (click)="addRepairItem(problemTextarea.value); problemTextarea.value = ''">
             Toevoegen
           </button>
         </div>
 
-        @if (problems().length > 0) {
+        @if (repairsNeededFor().length > 0) {
           <div class="problems-list">
-            @for (problem of problems(); track $index) {
+            @for (repairItem of repairsNeededFor(); track $index) {
               <div class="problem-item">
-                <span>{{ problem }}</span>
+                <span>{{ repairItem }}</span>
                 <button 
                   type="button" 
                   class="remove-button" 
-                  (click)="removeProblem($index)"
-                  aria-label="Verwijder probleem"
-                >
-                  ×
-                </button>
-              </div>
-            }
-          </div>
-        }
-      </section>
-
-      <section class="form-section">
-        <h2>Aanbevolen corrigerende acties</h2>
-
-        <div class="problem-input-group">
-          <textarea
-            #actionTextarea
-            placeholder="Beschrijf een aanbevolen actie..."
-            rows="4"
-          ></textarea>
-          <button type="button" class="add-button" (click)="addSuggestedAction(actionTextarea.value); actionTextarea.value = ''">
-            Toevoegen
-          </button>
-        </div>
-
-        @if (suggestedActions().length > 0) {
-          <div class="problems-list">
-            @for (action of suggestedActions(); track $index) {
-              <div class="problem-item">
-                <span>{{ action }}</span>
-                <button
-                  type="button"
-                  class="remove-button"
-                  (click)="removeSuggestedAction($index)"
-                  aria-label="Verwijder actie"
+                  (click)="removeRepairItem($index)"
+                  aria-label="Verwijder item"
                 >
                   ×
                 </button>

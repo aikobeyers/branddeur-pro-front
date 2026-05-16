@@ -86,24 +86,11 @@
               </div>
 
               <section class="card-block">
-                <h3>Gevonden problemen ({{ card.problems.length }})</h3>
-                @if (card.problems.length > 0) {
+                <h3>Herstelling nodig ({{ card.repairsNeededFor.length }})</h3>
+                @if (card.repairsNeededFor.length > 0) {
                   <ul>
-                    @for (problem of card.problems.slice(0, 2); track problem) {
-                      <li>{{ problem }}</li>
-                    }
-                  </ul>
-                } @else {
-                  <p>/</p>
-                }
-              </section>
-
-              <section class="card-block">
-                <h3>Aanbevelingen</h3>
-                @if (card.suggestedActions.length > 0) {
-                  <ul>
-                    @for (action of card.suggestedActions.slice(0, 2); track action) {
-                      <li>{{ action }}</li>
+                    @for (repairItem of card.repairsNeededFor.slice(0, 4); track repairItem) {
+                      <li>{{ repairItem }}</li>
                     }
                   </ul>
                 } @else {

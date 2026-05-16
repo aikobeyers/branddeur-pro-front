@@ -48,8 +48,7 @@ export class NewInspectionComponent {
   }));
 
   protected readonly checklistItems = signal<InspectieChecklistItem[]>([]);
-  protected readonly problems = signal<string[]>([]);
-  protected readonly suggestedActions = signal<string[]>([]);
+  protected readonly repairsNeededFor = signal<string[]>([]);
   protected readonly groupedChecklistItems = computed<ChecklistItemsGroup[]>(() => {
     const groups = new Map<string, ChecklistItemsGroup>();
 
@@ -86,7 +85,7 @@ export class NewInspectionComponent {
     checklistItems: this.formBuilder.group({}, { nonNullable: true }),
     generalCondition: ['Goed'],
     inspectionResult: ['A' as InspectionStatusCode],
-    foundProblems: [[] as string[]]
+    repairsNeededFor: [[] as string[]]
   });
 
   public constructor() {
@@ -125,8 +124,7 @@ export class NewInspectionComponent {
         this.selectedInspectionResult.set(inspectionResult);
 
         if (inspectionResult !== 'B') {
-          this.problems.set([]);
-          this.suggestedActions.set([]);
+          this.repairsNeededFor.set([]);
         }
       });
   }
@@ -136,26 +134,15 @@ export class NewInspectionComponent {
     return control as any;
   }
 
-  protected addProblem(problemText: string): void {
+  protected addRepairItem(problemText: string): void {
     const trimmedText = problemText.trim();
     if (trimmedText.length > 0) {
-      this.problems.update(items => [...items, trimmedText]);
+      this.repairsNeededFor.update(items => [...items, trimmedText]);
     }
   }
 
-  protected removeProblem(index: number): void {
-    this.problems.update(items => items.filter((_, i) => i !== index));
-  }
-
-  protected addSuggestedAction(actionText: string): void {
-    const trimmedText = actionText.trim();
-    if (trimmedText.length > 0) {
-      this.suggestedActions.update(items => [...items, trimmedText]);
-    }
-  }
-
-  protected removeSuggestedAction(index: number): void {
-    this.suggestedActions.update(items => items.filter((_, i) => i !== index));
+  protected removeRepairItem(index: number): void {
+    this.repairsNeededFor.update(items => items.filter((_, i) => i !== index));
   }
 
   protected onSubmit(): void {
@@ -171,8 +158,7 @@ export class NewInspectionComponent {
     const payload: CreateBranddeurInspectieRequest = {
       branddeurId: rawValue.branddeurId,
       checklistItems: rawValue.checklistItems,
-      foundProblems: this.problems(),
-      suggestedActions: this.suggestedActions(),
+      repairsNeededFor: this.repairsNeededFor(),
       generalCondition: this.normalizeOptional(rawValue.generalCondition),
       inspectionResult: {
         statusCode: rawValue.inspectionResult,
@@ -195,8 +181,7 @@ export class NewInspectionComponent {
           this.isSubmitting.set(false);
           this.submitSuccess.set(true);
           this.form.reset();
-          this.problems.set([]);
-          this.suggestedActions.set([]);
+          this.repairsNeededFor.set([]);
         },
         error: (err) => {
           this.isSubmitting.set(false);

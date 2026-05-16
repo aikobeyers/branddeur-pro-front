@@ -17,8 +17,9 @@ export interface BranddeurInspectie {
   _id: string;
   branddeurId: string;
   checkListItems: CheckListItemResult[];
-  foundProblems: string[];
-  suggestedActions: string[];
+  repairsNeededFor: string[];
+  foundProblems?: string[];
+  suggestedActions?: string[];
   generalCondition?: string;
   inspectionDate?: string;
   inspectionResult?: InspectionResult;
@@ -33,8 +34,7 @@ export interface BranddeurInspectie {
 export interface CreateBranddeurInspectieRequest {
   branddeurId: string;
   checklistItems?: Record<string, boolean>;
-  foundProblems?: string[];
-  suggestedActions?: string[];
+  repairsNeededFor?: string[];
   generalCondition?: string;
   inspectionDate?: string;
   inspectionResult?: InspectionResult | InspectionStatusCode;

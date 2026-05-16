@@ -27,6 +27,21 @@ export class InspectionDetailComponent {
   protected readonly isLoading = signal(true);
   protected readonly error = signal<string | null>(null);
   protected readonly checklistResults = signal<ChecklistResultViewModel[]>([]);
+  protected readonly repairsNeededFor = computed(() => {
+    const inspection = this.inspection();
+    if (!inspection) {
+      return [] as string[];
+    }
+
+    if (inspection.repairsNeededFor?.length) {
+      return inspection.repairsNeededFor;
+    }
+
+    return [
+      ...(inspection.foundProblems ?? []),
+      ...(inspection.suggestedActions ?? [])
+    ];
+  });
 
   protected readonly doorName = computed(() => {
     const inspection = this.inspection();

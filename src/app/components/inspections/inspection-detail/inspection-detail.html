@@ -45,24 +45,11 @@
         </section>
 
         <section class="section-block">
-          <h2>Vastgestelde afwijkingen</h2>
-          @if (inspection()!.foundProblems.length > 0) {
+          <h2>Herstelling nodig</h2>
+          @if (repairsNeededFor().length > 0) {
             <ul>
-              @for (problem of inspection()!.foundProblems; track problem) {
-                <li>{{ problem }}</li>
-              }
-            </ul>
-          } @else {
-            <p>/</p>
-          }
-        </section>
-
-        <section class="section-block">
-          <h2>Aanbevolen corrigerende acties</h2>
-          @if (inspection()!.suggestedActions.length > 0) {
-            <ul>
-              @for (action of inspection()!.suggestedActions; track action) {
-                <li>{{ action }}</li>
+              @for (repairItem of repairsNeededFor(); track repairItem) {
+                <li>{{ repairItem }}</li>
               }
             </ul>
           } @else {
