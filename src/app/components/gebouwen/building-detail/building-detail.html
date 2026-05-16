@@ -19,41 +19,51 @@
       <p class="status-message">Er zijn nog geen branddeuren gekoppeld aan dit gebouw.</p>
     } @else {
       <section class="doors-section" aria-label="Branddeuren in dit gebouw">
-        <div class="door-grid">
-          @for (door of doorRows(); track door.id) {
-            <article class="door-card">
-              <header class="door-header">
-                <h2>{{ door.name }}</h2>
-                <span
-                  class="status-pill"
-                  [class.status-approved]="statusClass(door.statusCode) === 'status-approved'"
-                  [class.status-error]="statusClass(door.statusCode) === 'status-error'"
-                  [class.status-unknown]="statusClass(door.statusCode) === 'status-unknown'"
-                >
-                  {{ door.statusLabel }}
-                </span>
-              </header>
-
-              <p class="door-meta">{{ door.floorLabel }} - {{ door.locationLabel }}</p>
-
-              @if (door.statusCode === 'B' || door.statusCode === 'C') {
-                <section class="repairs-block">
-                  <h3>Herstelling nodig</h3>
-
-                  @if (door.repairsNeededFor.length > 0) {
-                    <ul>
-                      @for (item of door.repairsNeededFor; track item) {
-                        <li>{{ item }}</li>
-                      }
-                    </ul>
+        <table class="door-list">
+          <thead>
+            <tr>
+              <th>Naam</th>
+              <th>Verdieping</th>
+              <th>Locatie</th>
+              <th>Status</th>
+              <th>Herstelling nodig</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (door of doorRows(); track door.id) {
+              <tr>
+                <td class="door-name">{{ door.name }}</td>
+                <td>{{ door.floorLabel }}</td>
+                <td>{{ door.locationLabel }}</td>
+                <td>
+                  <span
+                    class="status-pill"
+                    [class.status-approved]="statusClass(door.statusCode) === 'status-approved'"
+                    [class.status-error]="statusClass(door.statusCode) === 'status-error'"
+                    [class.status-unknown]="statusClass(door.statusCode) === 'status-unknown'"
+                  >
+                    {{ door.statusLabel }}
+                  </span>
+                </td>
+                <td>
+                  @if (door.statusCode === 'B' || door.statusCode === 'C') {
+                    @if (door.repairsNeededFor.length > 0) {
+                      <ul class="repairs-list">
+                        @for (item of door.repairsNeededFor; track item) {
+                          <li>{{ item }}</li>
+                        }
+                      </ul>
+                    } @else {
+                      <span class="empty-value">/</span>
+                    }
                   } @else {
-                    <p>/</p>
+                    <span class="empty-value">-</span>
                   }
-                </section>
-              }
-            </article>
-          }
-        </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
       </section>
     }
   </div>

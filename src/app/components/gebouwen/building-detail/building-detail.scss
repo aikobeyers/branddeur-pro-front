@@ -61,41 +61,66 @@
   color: #6a788d;
 }
 
-.door-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
-  gap: 14px;
-}
 
-.door-card {
-  border: 1px solid #e8edf4;
+.door-list {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: #fff;
+  box-shadow: 0 2px 12px rgba(19, 39, 67, 0.04);
   border-radius: 12px;
-  background: #ffffff;
-  box-shadow: 0 4px 14px rgba(19, 39, 67, 0.05);
-  padding: 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+  overflow: hidden;
+  margin-bottom: 24px;
 }
 
-.door-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 10px;
-
-  h2 {
-    margin: 0;
-    font-size: 18px;
-    font-weight: 800;
-    color: #131f33;
-  }
+.door-list th,
+.door-list td {
+  padding: 14px 12px;
+  text-align: left;
+  font-size: 14px;
 }
 
-.door-meta {
+.door-list th {
+  background: #f6f8fa;
+  color: #2f4560;
+  font-weight: 700;
+  border-bottom: 1px solid #e8edf4;
+}
+
+.door-list tbody tr {
+  border-bottom: 1px solid #f0f3f8;
+  transition: background 0.13s;
+}
+
+.door-list tbody tr:last-child {
+  border-bottom: none;
+}
+
+.door-list tbody tr:hover {
+  background: #f7fbff;
+}
+
+.door-name {
+  font-weight: 800;
+  color: #131f33;
+}
+
+.repairs-list {
   margin: 0;
-  color: #5c6d85;
+  padding-left: 18px;
+  display: grid;
+  gap: 2px;
+}
+
+.repairs-list li {
+  color: #31455f;
   font-size: 13px;
+  line-height: 1.35;
+}
+
+.empty-value {
+  color: #b0b8c9;
+  font-size: 14px;
 }
 
 .status-pill {
