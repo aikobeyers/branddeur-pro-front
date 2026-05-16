@@ -1,4 +1,22 @@
 <div class="new-inspection">
+  <header class="page-header">
+    <div class="title-block">
+      <span class="title-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M7 4H17C18.1 4 19 4.9 19 6V18C19 19.1 18.1 20 17 20H7C5.9 20 5 19.1 5 18V6C5 4.9 5.9 4 7 4Z" fill="none" stroke="currentColor" stroke-width="1.8"/>
+          <path d="M9 8H15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          <path d="M9 12H15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          <path d="M9 16H13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </span>
+
+      <div>
+        <h1>Nieuwe inspectie</h1>
+        <p class="subtitle">Registreer een nieuwe inspectie en sla direct alle bevindingen op</p>
+      </div>
+    </div>
+  </header>
+
   <form [formGroup]="form" (ngSubmit)="onSubmit()" class="inspection-form">
     <!-- Basis Informatie Section -->
     <section class="form-section">
