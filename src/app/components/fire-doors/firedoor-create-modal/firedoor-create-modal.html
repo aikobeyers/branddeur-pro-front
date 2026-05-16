@@ -53,22 +53,36 @@
 
       <label>
         <span>Verdieping</span>
-        <select formControlName="floor">
+        <select #floorSelect formControlName="floor" (change)="selectFloor(floorSelect.value)">
           <option value="">Selecteer een verdieping</option>
           @for (floor of floorOptions(); track floor) {
             <option [value]="floor">{{ floor }}</option>
           }
+          <option value="NEW_OPTION">Nieuwe verdieping...</option>
         </select>
+        @if (selectedFloorDropdown() === 'NEW_OPTION') {
+          <div class="array-input-row">
+            <input type="text" [value]="newFloorInput()" (input)="newFloorInput.set($event.target.value)" placeholder="Nieuwe verdieping toevoegen..." />
+            <button type="button" class="add-button" (click)="addFloorOption()">Toevoegen</button>
+          </div>
+        }
       </label>
 
       <label>
         <span>Locatie</span>
-        <select formControlName="location">
+        <select #locationSelect formControlName="location" (change)="selectLocation(locationSelect.value)">
           <option value="">Selecteer een locatie</option>
           @for (location of locationOptions(); track location) {
             <option [value]="location">{{ location }}</option>
           }
+          <option value="NEW_OPTION">Nieuwe locatie...</option>
         </select>
+        @if (selectedLocationDropdown() === 'NEW_OPTION') {
+          <div class="array-input-row">
+            <input type="text" [value]="newLocationInput()" (input)="newLocationInput.set($event.target.value)" placeholder="Nieuwe locatie toevoegen..." />
+            <button type="button" class="add-button" (click)="addLocationOption()">Toevoegen</button>
+          </div>
+        }
       </label>
 
       <label>

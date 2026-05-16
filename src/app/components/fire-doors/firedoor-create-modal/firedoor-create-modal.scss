@@ -142,6 +142,25 @@ input[type="date"]:focus-visible {
   gap: 12px;
 }
 
+.array-input-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.add-button {
+  height: 40px;
+  border-radius: 8px;
+  border: 1px solid #d7e0ec;
+  background: #ffffff;
+  color: #2f3e53;
+  padding: 0 12px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
 .error-text {
   margin: 0;
   color: #c73f28;
@@ -184,6 +203,11 @@ button.ghost:hover:not(:disabled) {
   border-color: #c2d2e6;
 }
 
+.add-button:hover:not(:disabled) {
+  background: #f6f9fd;
+  border-color: #c2d2e6;
+}
+
 button.primary:hover:not(:disabled) {
   transform: translateY(-1px);
   box-shadow: 0 5px 12px rgba(255, 111, 8, 0.4);
@@ -196,6 +220,10 @@ button:disabled {
 
 @media (max-width: 700px) {
   .two-col {
+    grid-template-columns: 1fr;
+  }
+
+  .array-input-row {
     grid-template-columns: 1fr;
   }
 }

@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, effect, inject, input, output, signal, Injector, computed } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { forkJoin, fromEvent, Observable, of } from 'rxjs';
+import { forkJoin, fromEvent, Observable, of, switchMap, tap } from 'rxjs';
 
 import { BranddeurenService } from '../../../services/branddeuren.service';
 import { Branddeur } from '../../../models/branddeur';
@@ -32,6 +32,40 @@ export class FiredoorCreateModal {
   protected readonly isLoadingGebouwen = signal(false);
   protected readonly floorOptions = signal<string[]>([]);
   protected readonly locationOptions = signal<string[]>([]);
+  protected readonly newFloorInput = signal('');
+  protected readonly newLocationInput = signal('');
+  protected readonly selectedFloorDropdown = signal('');
+  protected readonly selectedLocationDropdown = signal('');
+
+  protected addFloorOption(): void {
+    const value = this.newFloorInput().trim();
+    if (!value) {
+      return;
+    }
+
+    if (!this.floorOptions().includes(value)) {
+      this.floorOptions.update(list => [...list, value]);
+    }
+
+    this.form.controls.floor.setValue(value);
+    this.selectedFloorDropdown.set(value);
+    this.newFloorInput.set('');
+  }
+
+  protected addLocationOption(): void {
+    const value = this.newLocationInput().trim();
+    if (!value) {
+      return;
+    }
+
+    if (!this.locationOptions().includes(value)) {
+      this.locationOptions.update(list => [...list, value]);
+    }
+
+    this.form.controls.location.setValue(value);
+    this.selectedLocationDropdown.set(value);
+    this.newLocationInput.set('');
+  }
   private readonly lastPopulatedBranddeurId = signal<string | null>(null);
 
   protected readonly form = this.formBuilder.nonNullable.group({
@@ -47,9 +81,6 @@ export class FiredoorCreateModal {
   });
 
   public constructor() {
-    this.form.controls.floor.disable({ emitEvent: false });
-    this.form.controls.location.disable({ emitEvent: false });
-
     // Populate form when editing, but only once per branddeur to avoid overwriting user edits
     effect(() => {
       const branddeur = this.branddeurToEdit();
@@ -93,6 +124,10 @@ export class FiredoorCreateModal {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         this.syncBuildingDependentControls();
+        this.selectedFloorDropdown.set('');
+        this.selectedLocationDropdown.set('');
+        this.newFloorInput.set('');
+        this.newLocationInput.set('');
       });
 
     if (typeof window !== 'undefined') {
@@ -247,7 +282,14 @@ export class FiredoorCreateModal {
       request$ = this.branddeurenService.createBranddeur(createPayload);
     }
 
-    request$.subscribe({
+    const buildingSync$ = this.getBuildingSyncRequest(rawValue.building, payload.floor, payload.location);
+
+    buildingSync$
+      .pipe(
+        switchMap(() => request$),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
       next: () => {
         this.isSubmitting.set(false);
         this.created.emit();
@@ -259,9 +301,76 @@ export class FiredoorCreateModal {
     });
   }
 
+  private getBuildingSyncRequest(
+    buildingNameRaw: string,
+    floor: string | undefined,
+    location: string | undefined
+  ): Observable<Gebouw | null> {
+    const buildingName = buildingNameRaw.trim();
+    if (!buildingName) {
+      return of(null);
+    }
+
+    const selectedGebouw = this.gebouwen().find(gebouw => gebouw.name === buildingName) ?? null;
+    if (!selectedGebouw) {
+      return of(null);
+    }
+
+    const currentFloors = this.cleanStringList(selectedGebouw.floor);
+    const currentLocations = this.cleanStringList(selectedGebouw.location);
+
+    const nextFloors = floor && !currentFloors.includes(floor)
+      ? [...currentFloors, floor]
+      : currentFloors;
+    const nextLocations = location && !currentLocations.includes(location)
+      ? [...currentLocations, location]
+      : currentLocations;
+
+    const hasFloorChange = nextFloors.length !== currentFloors.length;
+    const hasLocationChange = nextLocations.length !== currentLocations.length;
+
+    if (!hasFloorChange && !hasLocationChange) {
+      return of(null);
+    }
+
+    return this.branddeurenService.updateGebouw(selectedGebouw._id, {
+      floor: nextFloors,
+      location: nextLocations
+    }).pipe(
+      tap((updatedGebouw) => {
+        this.gebouwen.update(items => items.map(item => item._id === updatedGebouw._id ? updatedGebouw : item));
+
+        if (this.form.controls.building.value === updatedGebouw.name) {
+          this.floorOptions.set(this.cleanStringList(updatedGebouw.floor));
+          this.locationOptions.set(this.cleanStringList(updatedGebouw.location));
+        }
+      })
+    );
+  }
+
+  protected selectFloor(value: string): void {
+    this.selectedFloorDropdown.set(value);
+    if (value === 'NEW_OPTION') {
+      this.form.controls.floor.setValue('NEW_OPTION');
+      return;
+    }
+
+    this.form.controls.floor.setValue(value);
+  }
+
+  protected selectLocation(value: string): void {
+    this.selectedLocationDropdown.set(value);
+    if (value === 'NEW_OPTION') {
+      this.form.controls.location.setValue('NEW_OPTION');
+      return;
+    }
+
+    this.form.controls.location.setValue(value);
+  }
+
   private normalizeOptional(value: string): string | undefined {
     const trimmed = value.trim();
-    return trimmed === '' ? undefined : trimmed;
+    return trimmed === '' || trimmed === 'NEW_OPTION' ? undefined : trimmed;
   }
 
   private normalizeDateOptional(value: string): string | undefined {

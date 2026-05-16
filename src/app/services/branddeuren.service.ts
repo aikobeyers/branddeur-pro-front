@@ -40,6 +40,10 @@ export class BranddeurenService {
     return this.http.get<Gebouw[]>(`${BASE_URL}${GEBOUWEN_SUFFIX}`);
   }
 
+  public updateGebouw(id: string, request: Partial<CreateGebouwRequest>): Observable<Gebouw> {
+    return this.http.put<Gebouw>(`${BASE_URL}${GEBOUWEN_SUFFIX}/${id}`, request);
+  }
+
   public getInspectieChecklistItems(): Observable<InspectieChecklistItem[]> {
     return this.http.get<InspectieChecklistItem[]>(`${BASE_URL}${INSPECTIE_CHECKLIST_ITEMS_SUFFIX}`);
   }
