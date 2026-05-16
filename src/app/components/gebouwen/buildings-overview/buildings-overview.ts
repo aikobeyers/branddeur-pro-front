@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, Injector, signal } from '@angular/core';
 import { httpResource } from '@angular/common/http';
+import { RouterLink } from '@angular/router';
 
 import { environment } from '../../../../environments/environment';
 import { BuildingCreateModal } from '../building-create-modal/building-create-modal';
@@ -31,7 +32,7 @@ interface GebouwCardViewModel {
 
 @Component({
   selector: 'app-buildings-overview',
-  imports: [BuildingCreateModal],
+  imports: [BuildingCreateModal, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './buildings-overview.html',
   styleUrl: './buildings-overview.scss',

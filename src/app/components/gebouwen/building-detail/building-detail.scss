@@ -1,0 +1,164 @@
+.building-detail {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.detail-wrapper {
+  width: 100%;
+  max-width: 1280px;
+  padding: 0 8px;
+
+  @media (min-width: 640px) {
+    padding: 0 12px;
+  }
+
+  @media (min-width: 1024px) {
+    padding: 0 16px;
+  }
+}
+
+.detail-header {
+  display: grid;
+  gap: 12px;
+  padding: 12px 0 16px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid #edf1f6;
+
+  h1 {
+    margin: 0;
+    font-size: 22px;
+    line-height: 1.15;
+    color: #151f33;
+    letter-spacing: -0.02em;
+  }
+}
+
+.back-link {
+  justify-self: start;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 8px;
+  border: 1px solid #d7e0ec;
+  background: #ffffff;
+  color: #273a53;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  transition: all 150ms ease;
+
+  &:hover {
+    background: #f6f9fd;
+    border-color: #c2d2e6;
+  }
+}
+
+.subtitle {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: #6a788d;
+}
+
+.door-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 14px;
+}
+
+.door-card {
+  border: 1px solid #e8edf4;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 4px 14px rgba(19, 39, 67, 0.05);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.door-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+
+  h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 800;
+    color: #131f33;
+  }
+}
+
+.door-meta {
+  margin: 0;
+  color: #5c6d85;
+  font-size: 13px;
+}
+
+.status-pill {
+  border-radius: 999px;
+  padding: 5px 11px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+
+  &.status-approved {
+    background: #d4f0dd;
+    color: #0b6d3e;
+  }
+
+  &.status-error {
+    background: #fde8e8;
+    color: #b91c1c;
+  }
+
+  &.status-unknown {
+    background: #edf2f9;
+    color: #41556f;
+  }
+}
+
+.repairs-block {
+  border-top: 1px solid #edf1f6;
+  padding-top: 10px;
+
+  h3 {
+    margin: 0 0 8px;
+    font-size: 13px;
+    color: #2f4560;
+  }
+
+  ul {
+    margin: 0;
+    padding-left: 18px;
+    display: grid;
+    gap: 4px;
+  }
+
+  li {
+    color: #31455f;
+    font-size: 13px;
+    line-height: 1.35;
+  }
+
+  p {
+    margin: 0;
+    color: #7c8ba0;
+    font-size: 13px;
+  }
+}
+
+.status-message {
+  text-align: center;
+  padding: 32px 16px;
+  font-size: 14px;
+  color: #6a788d;
+
+  &.error {
+    color: #d32f2f;
+  }
+}

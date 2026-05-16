@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { FireDoorsOverview } from './components/fire-doors/fire-doors-overview/fire-doors-overview';
+import { BuildingDetailComponent } from './components/gebouwen/building-detail/building-detail';
 import { BuildingsOverview } from './components/gebouwen/buildings-overview/buildings-overview';
 import { InspectionDetailComponent } from './components/inspections/inspection-detail/inspection-detail';
 import { InspectionsOverviewComponent } from './components/inspections/inspections-overview/inspections-overview';
@@ -21,6 +22,11 @@ export const routes: Routes = [
 		path: 'gebouwen',
 		component: BuildingsOverview,
 		title: 'Gebouwen'
+	},
+	{
+		path: 'gebouwen/:id',
+		component: BuildingDetailComponent,
+		title: 'Gebouw details'
 	},
 	{
 		path: 'inspecties-overzicht',

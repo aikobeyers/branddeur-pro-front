@@ -1,0 +1,60 @@
+<section class="building-detail">
+  <div class="detail-wrapper">
+    <header class="detail-header">
+      <a class="back-link" [routerLink]="['/gebouwen']">Terug naar gebouwen</a>
+
+      <div>
+        <h1>{{ building()?.name || 'Gebouw details' }}</h1>
+        <p class="subtitle">Overzicht van alle branddeuren, status en herstellingen</p>
+      </div>
+    </header>
+
+    @if (gebouwenResource.isLoading() || branddeurenResource.isLoading()) {
+      <p class="status-message">Laden...</p>
+    } @else if (gebouwenResource.error() || branddeurenResource.error()) {
+      <p class="status-message error">Er ging iets mis bij het laden van de gebouwdetails.</p>
+    } @else if (!building()) {
+      <p class="status-message">Gebouw niet gevonden.</p>
+    } @else if (doorRows().length === 0) {
+      <p class="status-message">Er zijn nog geen branddeuren gekoppeld aan dit gebouw.</p>
+    } @else {
+      <section class="doors-section" aria-label="Branddeuren in dit gebouw">
+        <div class="door-grid">
+          @for (door of doorRows(); track door.id) {
+            <article class="door-card">
+              <header class="door-header">
+                <h2>{{ door.name }}</h2>
+                <span
+                  class="status-pill"
+                  [class.status-approved]="statusClass(door.statusCode) === 'status-approved'"
+                  [class.status-error]="statusClass(door.statusCode) === 'status-error'"
+                  [class.status-unknown]="statusClass(door.statusCode) === 'status-unknown'"
+                >
+                  {{ door.statusLabel }}
+                </span>
+              </header>
+
+              <p class="door-meta">{{ door.floorLabel }} - {{ door.locationLabel }}</p>
+
+              @if (door.statusCode === 'B' || door.statusCode === 'C') {
+                <section class="repairs-block">
+                  <h3>Herstelling nodig</h3>
+
+                  @if (door.repairsNeededFor.length > 0) {
+                    <ul>
+                      @for (item of door.repairsNeededFor; track item) {
+                        <li>{{ item }}</li>
+                      }
+                    </ul>
+                  } @else {
+                    <p>/</p>
+                  }
+                </section>
+              }
+            </article>
+          }
+        </div>
+      </section>
+    }
+  </div>
+</section>
