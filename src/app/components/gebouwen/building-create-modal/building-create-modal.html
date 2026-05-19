@@ -1,7 +1,7 @@
 <div class="modal-backdrop" (click)="onBackdropClick()">
-  <section class="modal-panel" role="dialog" aria-modal="true" aria-label="Nieuw gebouw" (click)="$event.stopPropagation()">
+  <section class="modal-panel" role="dialog" aria-modal="true" [attr.aria-label]="isEditMode() ? 'Gebouw bewerken' : 'Nieuw gebouw'" (click)="$event.stopPropagation()">
     <header class="panel-header">
-      <h2>Nieuw gebouw</h2>
+      <h2>@if (isEditMode()) { Gebouw bewerken } @else { Nieuw gebouw }</h2>
       <button type="button" class="close-button" aria-label="Sluiten" (click)="onCancel()">x</button>
     </header>
 
@@ -65,9 +65,17 @@
         <button type="button" class="ghost" (click)="onCancel()" [disabled]="isSubmitting()">Annuleren</button>
         <button type="submit" class="primary" [disabled]="isSubmitting()">
           @if (isSubmitting()) {
-            Opslaan...
+            @if (isEditMode()) {
+              Bijwerken...
+            } @else {
+              Opslaan...
+            }
           } @else {
-            Opslaan
+            @if (isEditMode()) {
+              Bijwerken
+            } @else {
+              Opslaan
+            }
           }
         </button>
       </footer>

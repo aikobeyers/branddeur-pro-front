@@ -23,7 +23,7 @@
     </header>
 
     @if (isModalOpen()) {
-      <app-building-create-modal (close)="closeModal()" (created)="handleCreated()" />
+      <app-building-create-modal [buildingToEdit]="buildingToEdit()" (close)="closeModal()" (created)="handleCreated()" />
     }
 
     @if (gebouwenResource.isLoading()) {
@@ -78,6 +78,7 @@
             </div>
 
             <footer class="card-footer">
+              <button class="edit-button" type="button" (click)="openEditModal(gebouw.id)">Bewerken</button>
               <a class="details-button" [routerLink]="['/gebouwen', gebouw.id]">Details</a>
             </footer>
           </article>

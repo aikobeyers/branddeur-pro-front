@@ -1,9 +1,11 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, Injector, computed, effect, inject, input, output, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { Observable } from 'rxjs';
 import { fromEvent } from 'rxjs';
 
 import { BranddeurenService } from '../../../services/branddeuren.service';
+import { Gebouw } from '../../../models/gebouw';
 
 @Component({
   selector: 'app-building-create-modal',
@@ -16,7 +18,9 @@ export class BuildingCreateModal {
   private readonly formBuilder = inject(FormBuilder);
   private readonly branddeurenService = inject(BranddeurenService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly injector = inject(Injector);
 
+  public readonly buildingToEdit = input<Gebouw | null>(null);
   public readonly close = output<void>();
   public readonly created = output<void>();
 
@@ -24,6 +28,7 @@ export class BuildingCreateModal {
   protected readonly submitError = signal<string | null>(null);
   protected readonly floors = signal<string[]>([]);
   protected readonly locations = signal<string[]>([]);
+  protected readonly isEditMode = computed(() => !!this.buildingToEdit()?._id);
 
   protected readonly form = this.formBuilder.nonNullable.group({
     name: ['', [Validators.required, Validators.maxLength(64)]],
@@ -32,6 +37,24 @@ export class BuildingCreateModal {
   });
 
   public constructor() {
+    effect(() => {
+      const building = this.buildingToEdit();
+      if (!building) {
+        this.form.reset();
+        this.floors.set([]);
+        this.locations.set([]);
+        this.submitError.set(null);
+        return;
+      }
+
+      this.form.controls.name.setValue(building.name?.trim() ?? '');
+      this.form.controls.floorInput.setValue('');
+      this.form.controls.locationInput.setValue('');
+      this.floors.set(this.cleanStringList(building.floor));
+      this.locations.set(this.cleanStringList(building.location));
+      this.submitError.set(null);
+    }, { injector: this.injector });
+
     if (typeof window !== 'undefined') {
       fromEvent<KeyboardEvent>(window, 'keydown')
         .pipe(takeUntilDestroyed(this.destroyRef))
@@ -94,12 +117,19 @@ export class BuildingCreateModal {
 
     const rawValue = this.form.getRawValue();
     this.isSubmitting.set(true);
+    const buildingToEdit = this.buildingToEdit();
 
-    this.branddeurenService.createGebouw({
+    const payload = {
       name: rawValue.name.trim(),
       floor: this.floors().length > 0 ? this.floors() : undefined,
       location: this.locations().length > 0 ? this.locations() : undefined
-    })
+    };
+
+    const request$: Observable<Gebouw> = this.isEditMode() && buildingToEdit?._id
+      ? this.branddeurenService.updateGebouw(buildingToEdit._id, payload)
+      : this.branddeurenService.createGebouw(payload);
+
+    request$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
@@ -111,6 +141,16 @@ export class BuildingCreateModal {
           this.submitError.set('Opslaan mislukt. Controleer uw rechten of probeer opnieuw.');
         }
       });
+  }
+
+  private cleanStringList(values: string[] | undefined): string[] {
+    if (!values || values.length === 0) {
+      return [];
+    }
+
+    return values
+      .map(value => value?.trim())
+      .filter((value): value is string => !!value);
   }
 
   private resetScrolling(): void {

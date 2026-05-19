@@ -40,6 +40,7 @@ interface GebouwCardViewModel {
 export class BuildingsOverview {
   private readonly injector = inject(Injector);
   protected readonly isModalOpen = signal(false);
+  protected readonly buildingToEdit = signal<Gebouw | null>(null);
 
   protected readonly gebouwenResource = httpResource<Gebouw[]>(() => ({
     url: `${environment.baseUrl}/gebouwen`,
@@ -95,15 +96,32 @@ export class BuildingsOverview {
   }
 
   protected openCreateModal(): void {
+    this.buildingToEdit.set(null);
+    this.isModalOpen.set(true);
+  }
+
+  protected openEditModal(gebouwId: string): void {
+    const gebouw = (this.gebouwenResource.value() ?? []).find(item => item._id === gebouwId);
+    if (!gebouw) {
+      return;
+    }
+
+    this.buildingToEdit.set({
+      ...gebouw,
+      floor: [...(gebouw.floor ?? [])],
+      location: [...(gebouw.location ?? [])]
+    });
     this.isModalOpen.set(true);
   }
 
   protected closeModal(): void {
     this.isModalOpen.set(false);
+    this.buildingToEdit.set(null);
   }
 
   protected handleCreated(): void {
     this.isModalOpen.set(false);
+    this.buildingToEdit.set(null);
     this.gebouwenResource.reload();
   }
 
