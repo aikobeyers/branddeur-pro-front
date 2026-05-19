@@ -11,6 +11,7 @@ import { Branddeur } from '../../../models/branddeur';
 export class FiredoorCard {
   public readonly branddeur = input.required<Branddeur>();
   public readonly edit = output<Branddeur>();
+  public readonly remove = output<Branddeur>();
 
   protected readonly statusLabel = computed(() => {
     const inspection = this.branddeur().mostRecentInspection;
@@ -78,5 +79,9 @@ export class FiredoorCard {
 
   protected onEditClick(): void {
     this.edit.emit(this.branddeur());
+  }
+
+  protected onDeleteClick(): void {
+    this.remove.emit(this.branddeur());
   }
 }

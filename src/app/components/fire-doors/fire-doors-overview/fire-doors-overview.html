@@ -29,17 +29,42 @@
 				(created)="handleCreated()" />
 		}
 
+		@if (isDeleteModalOpen()) {
+			<div class="confirm-modal-backdrop" (click)="closeDeleteModal()" aria-hidden="true"></div>
+
+			<section class="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="delete-confirm-title">
+				<div class="confirm-icon" aria-hidden="true">!</div>
+				<h2 id="delete-confirm-title">Branddeur verwijderen</h2>
+				<p>Weet u zeker dat u {{ branddeurToDelete()?.name }} wilt verwijderen?</p>
+
+				<div class="confirm-modal-actions">
+					<button type="button" class="ghost-button" (click)="closeDeleteModal()" [disabled]="isDeleteSubmitting()">
+						Annuleren
+					</button>
+					<button type="button" class="danger-button" (click)="confirmDeleteBranddeur()" [disabled]="isDeleteSubmitting()">
+						@if (isDeleteSubmitting()) {
+							Verwijderen...
+						} @else {
+							Verwijderen
+						}
+					</button>
+				</div>
+			</section>
+		}
+
 		@if (branddeurenResource.isLoading()) {
 			<p class="status-message">Laden...</p>
 		} @else if (branddeurenResource.error()) {
 			<p class="status-message error">Er ging iets mis bij het laden van branddeuren.</p>
+		} @else if (deleteError()) {
+			<p class="status-message error">{{ deleteError() }}</p>
 		} @else if (branddeurenResource.hasValue()) {
 			@if (branddeurenResource.value().length === 0) {
 				<p class="status-message">Geen branddeuren gevonden.</p>
 			} @else {
 				<div class="card-grid">
 					@for (branddeur of branddeurenResource.value(); track branddeur._id) {
-						<app-firedoor-card [branddeur]="branddeur" (edit)="openEditModal($event)" />
+						<app-firedoor-card [branddeur]="branddeur" (edit)="openEditModal($event)" (remove)="openDeleteModal($event)" />
 					}
 				</div>
 			}

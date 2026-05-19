@@ -37,11 +37,15 @@
   <p class="manufacturer">Fabrikant: {{ manufacturerLabel() }}</p>
 
   <footer class="card-footer">
-    <button class="edit-button" type="button" (click)="onEditClick()">
+    <button class="edit-button" type="button" (click)="onEditClick()" aria-label="Bewerken">
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path d="M3 17.25V21H6.75L17.8 9.95L14.05 6.2L3 17.25ZM20.71 7.04C21.1 6.65 21.1 6.02 20.71 5.63L18.37 3.29C17.98 2.9 17.35 2.9 16.96 3.29L15.13 5.12L18.88 8.87L20.71 7.04Z" />
       </svg>
-      Bewerken
+    </button>
+    <button class="delete-button" type="button" (click)="onDeleteClick()" aria-label="Verwijderen">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M9 3H15L16 5H20V7H4V5H8L9 3ZM6 9H18L17 21H7L6 9ZM10 11V19H12V11H10ZM12 11V19H14V11H12Z" />
+      </svg>
     </button>
   </footer>
 </article>

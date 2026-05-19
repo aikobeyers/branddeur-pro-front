@@ -32,6 +32,10 @@ export class BranddeurenService {
     return this.http.put<Branddeur>(`${BASE_URL}${BRANDDEUREN_SUFFIX}/${id}`, request);
   }
 
+  public deleteBranddeur(id: string): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(`${BASE_URL}${BRANDDEUREN_SUFFIX}/${id}`);
+  }
+
   public createGebouw(request: CreateGebouwRequest): Observable<Gebouw> {
     return this.http.post<Gebouw>(`${BASE_URL}${GEBOUWEN_SUFFIX}`, request);
   }

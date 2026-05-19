@@ -163,11 +163,12 @@
   padding-bottom: 16px;
   border-top: 1px solid #edf2f7;
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
+  gap: 8px;
 }
 
 .edit-button {
-  min-width: 144px;
+  width: 42px;
   height: 42px;
   border-radius: 10px;
   border: 1px solid #d9e0ea;
@@ -178,9 +179,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
   cursor: pointer;
   transition: transform 160ms ease, box-shadow 160ms ease, background-color 160ms ease, border-color 160ms ease;
+  padding: 0;
 }
 
 .edit-button:hover {
@@ -191,6 +192,36 @@
 }
 
 .edit-button svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+.delete-button {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  border: 1px solid #f0c2c2;
+  background: #fff7f7;
+  color: #a33b3b;
+  font-size: 14px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 160ms ease, box-shadow 160ms ease, background-color 160ms ease, border-color 160ms ease;
+  padding: 0;
+}
+
+.delete-button:hover {
+  background: #ffecec;
+  border-color: #e8aaaa;
+  box-shadow: 0 3px 10px rgba(125, 31, 31, 0.1);
+  transform: translateY(-1px);
+}
+
+.delete-button svg {
   width: 16px;
   height: 16px;
   fill: currentColor;
