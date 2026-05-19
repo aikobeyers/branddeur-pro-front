@@ -24,11 +24,32 @@
 
       <div class="form-grid form-grid--2col">
         <label>
+          <span>Gebouw <span class="required">*</span></span>
+          <select formControlName="building">
+            <option value="" disabled selected hidden>Selecteer een gebouw</option>
+            @if (gebouwenResource.hasValue()) {
+              @for (gebouw of gebouwenResource.value(); track gebouw._id) {
+                <option [value]="gebouw.name">{{ gebouw.name }}</option>
+              }
+            }
+          </select>
+          @if (form.controls.building.touched && form.controls.building.invalid) {
+            <p class="field-error">Gebouw is verplicht.</p>
+          }
+        </label>
+
+        <label>
           <span>Branddeur <span class="required">*</span></span>
           <select formControlName="branddeurId">
-            <option value="" disabled selected hidden>Selecteer een branddeur</option>
-            @if (branddeurenResource.hasValue()) {
-              @for (branddeur of branddeurenResource.value(); track branddeur._id) {
+            @if (!selectedBuilding()) {
+              <option value="" disabled selected hidden>Selecteer eerst een gebouw</option>
+            } @else if (filteredBranddeuren().length === 0) {
+              <option value="" disabled selected hidden>Geen branddeuren beschikbaar voor dit gebouw</option>
+            } @else {
+              <option value="" disabled selected hidden>Selecteer een branddeur</option>
+            }
+            @if (filteredBranddeuren().length > 0) {
+              @for (branddeur of filteredBranddeuren(); track branddeur._id) {
                 <option [value]="branddeur._id">{{ branddeur.name }}</option>
               }
             }

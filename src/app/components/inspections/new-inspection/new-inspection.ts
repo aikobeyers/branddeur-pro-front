@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, Injector, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, computed, effect, inject, Injector, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { httpResource } from '@angular/common/http';
 import { ReactiveFormsModule, FormBuilder, Validators, FormGroup } from '@angular/forms';
@@ -7,6 +7,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { BranddeurenService } from '../../../services/branddeuren.service';
 import { Branddeur } from '../../../models/branddeur';
+import { Gebouw } from '../../../models/gebouw';
 import { CreateBranddeurInspectieRequest, InspectionStatusCode, InspectionStatusValue } from '../../../models/branddeur-inspectie';
 import { InspectieChecklistCategory, InspectieChecklistItem } from '../../../models/inspectie-checklist-item';
 import { environment } from '../../../../environments/environment';
@@ -34,6 +35,7 @@ export class NewInspectionComponent {
   private readonly formBuilder = inject(FormBuilder);
   private readonly injector = inject(Injector);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly hostElement = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly branddeurenService = inject(BranddeurenService);
 
@@ -41,11 +43,30 @@ export class NewInspectionComponent {
   protected readonly submitError = signal<string | null>(null);
   protected readonly submitSuccess = signal(false);
   protected readonly selectedInspectionResult = signal<InspectionStatusCode>('A');
+  protected readonly selectedBuilding = signal('');
 
   protected readonly branddeurenResource = httpResource<Branddeur[]>(() => ({
     url: `${environment.baseUrl}/branddeuren`,
     method: 'GET'
   }));
+  protected readonly gebouwenResource = httpResource<Gebouw[]>(() => ({
+    url: `${environment.baseUrl}/gebouwen`,
+    method: 'GET'
+  }));
+  protected readonly filteredBranddeuren = computed<Branddeur[]>(() => {
+    if (!this.branddeurenResource.hasValue()) {
+      return [];
+    }
+
+    const selectedBuilding = this.selectedBuilding().trim();
+    if (!selectedBuilding) {
+      return [];
+    }
+
+    return this.branddeurenResource.value().filter(
+      (branddeur) => (branddeur.building ?? '').trim() === selectedBuilding
+    );
+  });
 
   protected readonly checklistItems = signal<InspectieChecklistItem[]>([]);
   protected readonly repairsNeededFor = signal<string[]>([]);
@@ -76,6 +97,7 @@ export class NewInspectionComponent {
   );
 
   protected readonly form = this.formBuilder.nonNullable.group({
+    building: ['', [Validators.required]],
     branddeurId: ['', [Validators.required]],
     inspectorName: ['', [Validators.required]],
     supervisor: [''],
@@ -90,6 +112,7 @@ export class NewInspectionComponent {
 
   public constructor() {
     this.selectedInspectionResult.set(this.form.controls.inspectionResult.getRawValue());
+    this.form.controls.branddeurId.disable({ emitEvent: false });
 
     // Set resolved checklist items from route
     this.checklistItems.set(this.activatedRoute.snapshot.data['checklistItems'] || []);
@@ -107,6 +130,31 @@ export class NewInspectionComponent {
           });
         }
       }
+    }, { injector: this.injector });
+
+    this.form.controls.building.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((building) => {
+        const selectedBuilding = building.trim();
+        this.selectedBuilding.set(selectedBuilding);
+        this.form.controls.branddeurId.setValue('');
+        this.form.controls.branddeurId.markAsPristine();
+        this.form.controls.branddeurId.markAsUntouched();
+      });
+
+    effect(() => {
+      const selectedBuilding = this.selectedBuilding().trim();
+      const hasDoors = selectedBuilding !== '' && this.filteredBranddeuren().length > 0;
+
+      if (!hasDoors) {
+        this.form.controls.branddeurId.setValue('');
+        this.form.controls.branddeurId.markAsPristine();
+        this.form.controls.branddeurId.markAsUntouched();
+        this.form.controls.branddeurId.disable({ emitEvent: false });
+        return;
+      }
+
+      this.form.controls.branddeurId.enable({ emitEvent: false });
     }, { injector: this.injector });
 
     this.form.controls.branddeurId.valueChanges
@@ -148,6 +196,7 @@ export class NewInspectionComponent {
   protected onSubmit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      queueMicrotask(() => this.scrollFirstInvalidFieldIntoView());
       return;
     }
 
@@ -182,6 +231,8 @@ export class NewInspectionComponent {
           this.isSubmitting.set(false);
           this.submitSuccess.set(true);
           this.form.reset();
+          this.selectedBuilding.set('');
+          this.form.controls.branddeurId.disable({ emitEvent: false });
           this.repairsNeededFor.set([]);
         },
         error: (err) => {
@@ -194,6 +245,24 @@ export class NewInspectionComponent {
 
   protected closeSuccessModal(): void {
     this.submitSuccess.set(false);
+  }
+
+  private scrollFirstInvalidFieldIntoView(): void {
+    const formElement = this.hostElement.nativeElement.querySelector('.inspection-form');
+    if (!(formElement instanceof HTMLElement)) {
+      return;
+    }
+
+    const firstInvalidField = formElement.querySelector(
+      'select[formcontrolname].ng-invalid, input[formcontrolname].ng-invalid, textarea[formcontrolname].ng-invalid'
+    );
+
+    if (!(firstInvalidField instanceof HTMLElement)) {
+      return;
+    }
+
+    firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+    firstInvalidField.focus({ preventScroll: true });
   }
 
   private getDefaultInspectionDate(branddeurId: string): string | null {
