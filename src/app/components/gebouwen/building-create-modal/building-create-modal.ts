@@ -67,8 +67,9 @@ export class BuildingCreateModal {
   }
 
   protected onBackdropClick(): void {
-    if (!this.isSubmitting()) {
-      this.onCancel();
+    if (!this.isSubmitting() && !this.isEditMode() && !this.form.dirty) {
+      this.close.emit();
+      this.resetScrolling();
     }
   }
 
