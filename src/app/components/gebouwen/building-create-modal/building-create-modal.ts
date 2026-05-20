@@ -119,16 +119,24 @@ export class BuildingCreateModal {
     const rawValue = this.form.getRawValue();
     this.isSubmitting.set(true);
     const buildingToEdit = this.buildingToEdit();
+    const floorValues = this.floors();
+    const locationValues = this.locations();
 
-    const payload = {
+    const createPayload = {
       name: rawValue.name.trim(),
-      floor: this.floors().length > 0 ? this.floors() : undefined,
-      location: this.locations().length > 0 ? this.locations() : undefined
+      floor: floorValues.length > 0 ? floorValues : undefined,
+      location: locationValues.length > 0 ? locationValues : undefined
+    };
+
+    const updatePayload = {
+      name: rawValue.name.trim(),
+      floor: floorValues,
+      location: locationValues
     };
 
     const request$: Observable<Gebouw> = this.isEditMode() && buildingToEdit?._id
-      ? this.branddeurenService.updateGebouw(buildingToEdit._id, payload)
-      : this.branddeurenService.createGebouw(payload);
+      ? this.branddeurenService.updateGebouw(buildingToEdit._id, updatePayload)
+      : this.branddeurenService.createGebouw(createPayload);
 
     request$
       .pipe(takeUntilDestroyed(this.destroyRef))
