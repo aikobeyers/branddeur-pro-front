@@ -110,14 +110,10 @@ export class InspectionsOverviewComponent {
 
       const latestByDoor = new Map<string, BranddeurInspectie>();
       for (const inspection of inspections ?? []) {
-        const branddeurId = this.getInspectionBranddeurId(inspection);
-        if (!branddeurId) {
-          continue;
-        }
-
-        const existing = latestByDoor.get(branddeurId);
+        const groupingKey = this.getInspectionGroupingKey(inspection);
+        const existing = latestByDoor.get(groupingKey);
         if (!existing || this.getInspectionSortTime(inspection) > this.getInspectionSortTime(existing)) {
-          latestByDoor.set(branddeurId, inspection);
+          latestByDoor.set(groupingKey, inspection);
         }
       }
 
@@ -632,17 +628,36 @@ export class InspectionsOverviewComponent {
       return branddeur?.name || inspection.branddeurId;
     }
 
+    if (!inspection.branddeurId || typeof inspection.branddeurId !== 'object') {
+      return '-';
+    }
+
     const populatedBranddeur = inspection.branddeurId as unknown as { name?: string; _id?: string };
     return populatedBranddeur.name || populatedBranddeur._id || '-';
   }
 
   private getInspectionBranddeurId(inspection: BranddeurInspectie): string | undefined {
     if (typeof inspection.branddeurId === 'string') {
-      return inspection.branddeurId;
+      const id = inspection.branddeurId.trim();
+      return id || undefined;
+    }
+
+    if (!inspection.branddeurId || typeof inspection.branddeurId !== 'object') {
+      return undefined;
     }
 
     const populatedBranddeur = inspection.branddeurId as unknown as { _id?: string };
-    return populatedBranddeur._id;
+    const id = (populatedBranddeur._id || '').trim();
+    return id || undefined;
+  }
+
+  private getInspectionGroupingKey(inspection: BranddeurInspectie): string {
+    const branddeurId = this.getInspectionBranddeurId(inspection);
+    if (branddeurId) {
+      return `branddeur:${branddeurId}`;
+    }
+
+    return `inspection:${inspection._id}`;
   }
 
   private getInspectionBuilding(inspection: BranddeurInspectie): string {
