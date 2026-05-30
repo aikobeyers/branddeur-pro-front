@@ -67,4 +67,8 @@ export class BranddeurenService {
   public updateInspection(id: string, request: Partial<CreateBranddeurInspectieRequest>): Observable<BranddeurInspectie> {
     return this.http.put<BranddeurInspectie>(`${BASE_URL}${BRANDDEUR_INSPECTIES_SUFFIX}/${id}`, request);
   }
+
+  public deleteInspection(id: string): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(`${BASE_URL}${BRANDDEUR_INSPECTIES_SUFFIX}/${id}`);
+  }
 }

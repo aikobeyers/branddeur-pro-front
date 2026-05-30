@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 
 import { Branddeur } from '../../../models/branddeur';
@@ -21,11 +21,14 @@ interface ChecklistResultViewModel {
 })
 export class InspectionDetailComponent {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly branddeurenService = inject(BranddeurenService);
 
   protected readonly inspection = signal<BranddeurInspectie | null>(null);
   protected readonly isLoading = signal(true);
+  protected readonly isDeleting = signal(false);
   protected readonly error = signal<string | null>(null);
+  protected readonly deleteError = signal<string | null>(null);
   protected readonly checklistResults = signal<ChecklistResultViewModel[]>([]);
   protected readonly repairsNeededFor = computed(() => {
     const inspection = this.inspection();
@@ -118,6 +121,31 @@ export class InspectionDetailComponent {
     }
 
     return 'status-unknown';
+  }
+
+  protected async onDeleteInspection(): Promise<void> {
+    const inspection = this.inspection();
+    if (!inspection || this.isDeleting()) {
+      return;
+    }
+
+    const confirmed = window.confirm('Weet je zeker dat je deze inspectie wilt verwijderen?');
+    if (!confirmed) {
+      return;
+    }
+
+    this.isDeleting.set(true);
+    this.deleteError.set(null);
+
+    try {
+      await firstValueFrom(this.branddeurenService.deleteInspection(inspection._id));
+      await this.router.navigate(['/inspecties-overzicht']);
+    } catch (error) {
+      console.error('Inspection delete failed', error);
+      this.deleteError.set('Inspectie verwijderen is mislukt. Probeer het opnieuw.');
+    } finally {
+      this.isDeleting.set(false);
+    }
   }
 
   private async loadInspection(): Promise<void> {

@@ -61,6 +61,12 @@
   gap: 10px;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .detail-header h1 {
   margin: 0;
   color: #131f33;
@@ -97,6 +103,74 @@
 .status-pill.status-unknown {
   background: #e8eef8;
   color: #486fa0;
+}
+
+.actions-menu {
+  position: relative;
+}
+
+.menu-trigger {
+  list-style: none;
+  width: 34px;
+  height: 34px;
+  border: 1px solid #d4dbe8;
+  border-radius: 9px;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  cursor: pointer;
+}
+
+.menu-trigger::-webkit-details-marker {
+  display: none;
+}
+
+.menu-trigger:hover {
+  background: #f5f8fc;
+}
+
+.menu-trigger .dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #3f5372;
+}
+
+.menu-panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 170px;
+  background: #ffffff;
+  border: 1px solid #dfe6f2;
+  border-radius: 10px;
+  box-shadow: 0 10px 24px rgba(27, 48, 78, 0.18);
+  padding: 6px;
+  z-index: 3;
+}
+
+.menu-item-delete {
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: #b2352b;
+  text-align: left;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 8px 10px;
+  cursor: pointer;
+}
+
+.menu-item-delete:hover:not(:disabled) {
+  background: #fbeceb;
+}
+
+.menu-item-delete:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
 }
 
 .location-line {

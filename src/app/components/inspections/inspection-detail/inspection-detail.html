@@ -10,15 +10,40 @@
       <article class="detail-card">
         <header class="detail-header">
           <h1>{{ doorName() }}</h1>
-          <span
-            class="status-pill"
-            [class.status-approved]="statusClass(inspection()!.inspectionResult?.statusCode) === 'status-approved'"
-            [class.status-error]="statusClass(inspection()!.inspectionResult?.statusCode) === 'status-error'"
-            [class.status-unknown]="statusClass(inspection()!.inspectionResult?.statusCode) === 'status-unknown'"
-          >
-            {{ inspection()!.inspectionResult?.statusValue || 'Onbekend' }}
-          </span>
+          <div class="header-actions">
+            <span
+              class="status-pill"
+              [class.status-approved]="statusClass(inspection()!.inspectionResult?.statusCode) === 'status-approved'"
+              [class.status-error]="statusClass(inspection()!.inspectionResult?.statusCode) === 'status-error'"
+              [class.status-unknown]="statusClass(inspection()!.inspectionResult?.statusCode) === 'status-unknown'"
+            >
+              {{ inspection()!.inspectionResult?.statusValue || 'Onbekend' }}
+            </span>
+
+            <details class="actions-menu">
+              <summary class="menu-trigger" aria-label="Meer acties">
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+              </summary>
+
+              <div class="menu-panel">
+                <button
+                  type="button"
+                  class="menu-item-delete"
+                  (click)="onDeleteInspection()"
+                  [disabled]="isDeleting()"
+                >
+                  {{ isDeleting() ? 'Verwijderen...' : 'Inspectie verwijderen' }}
+                </button>
+              </div>
+            </details>
+          </div>
         </header>
+
+        @if (deleteError()) {
+          <p class="status-message error">{{ deleteError() }}</p>
+        }
 
         <p class="location-line">{{ buildingLabel() }} - {{ floorLabel() }} - {{ locationLabel() }}</p>
 
