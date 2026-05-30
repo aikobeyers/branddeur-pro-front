@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 
@@ -37,6 +37,7 @@ type ReportVariant = 'detailed' | 'compact';
 interface InspectionCardViewModel {
   id: string;
   doorName: string;
+  hasLinkedDoor: boolean;
   statusLabel: string;
   statusCode: string;
   buildingLabel: string;
@@ -69,6 +70,17 @@ export class InspectionsOverviewComponent {
   protected readonly selectedReportVariant = signal<ReportVariant>('detailed');
   protected readonly generateError = signal<string | null>(null);
   protected readonly cards = signal<InspectionCardViewModel[]>([]);
+  protected readonly hideInvalidInspections = signal(false);
+  protected readonly visibleCards = computed(() => {
+    if (!this.hideInvalidInspections()) {
+      return this.cards();
+    }
+
+    return this.cards().filter(card => card.hasLinkedDoor);
+  });
+  protected readonly invalidInspectionCount = computed(() =>
+    this.cards().filter(card => !card.hasLinkedDoor).length
+  );
   protected readonly isLoadingCards = signal(false);
   protected readonly cardsError = signal<string | null>(null);
 
@@ -94,6 +106,15 @@ export class InspectionsOverviewComponent {
     }
 
     return 'status-unknown';
+  }
+
+  protected onHideInvalidInspectionsToggle(event: Event): void {
+    const target = event.target as HTMLInputElement | null;
+    if (!target) {
+      return;
+    }
+
+    this.hideInvalidInspections.set(target.checked);
   }
 
   private async loadInspectionCards(): Promise<void> {
@@ -138,6 +159,7 @@ export class InspectionsOverviewComponent {
     return {
       id: inspection._id,
       doorName: this.getDoorLabel(inspection),
+      hasLinkedDoor: this.hasInspectionLinkedDoor(inspection),
       statusLabel: inspection.inspectionResult?.statusValue || 'Onbekend',
       statusCode: inspection.inspectionResult?.statusCode || '',
       buildingLabel: this.normalizeBuildingValue(branddeur?.building) || 'Onbekend',
@@ -649,6 +671,20 @@ export class InspectionsOverviewComponent {
     const populatedBranddeur = inspection.branddeurId as unknown as { _id?: string };
     const id = (populatedBranddeur._id || '').trim();
     return id || undefined;
+  }
+
+  private hasInspectionLinkedDoor(inspection: BranddeurInspectie): boolean {
+    const branddeurId = this.getInspectionBranddeurId(inspection);
+    if (branddeurId) {
+      return this.branddeurenById.has(branddeurId);
+    }
+
+    if (!inspection.branddeurId || typeof inspection.branddeurId !== 'object') {
+      return false;
+    }
+
+    const populatedBranddeur = inspection.branddeurId as unknown as { name?: string };
+    return Boolean(populatedBranddeur.name?.trim());
   }
 
   private getInspectionGroupingKey(inspection: BranddeurInspectie): string {

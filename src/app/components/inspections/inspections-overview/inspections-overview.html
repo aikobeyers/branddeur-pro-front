@@ -49,16 +49,33 @@
       }
     </section>
 
+    <section class="filter-panel" aria-label="Inspectiefilters">
+      <label class="toggle-control" for="hide-invalid-inspections">
+        <input
+          id="hide-invalid-inspections"
+          type="checkbox"
+          [checked]="hideInvalidInspections()"
+          (change)="onHideInvalidInspectionsToggle($event)"
+        >
+        <span class="toggle-slider" aria-hidden="true"></span>
+        <span class="toggle-text">Verberg ongeldige inspecties zonder branddeur</span>
+      </label>
+
+      @if (invalidInspectionCount() > 0) {
+        <p class="filter-hint">{{ invalidInspectionCount() }} ongeldige inspectie(s) gevonden.</p>
+      }
+    </section>
+
     @if (isLoadingCards()) {
       <p class="status-message">Inspecties laden...</p>
     } @else if (cardsError()) {
       <p class="status-message error">{{ cardsError() }}</p>
-    } @else if (cards().length === 0) {
+    } @else if (visibleCards().length === 0) {
       <p class="status-message">Geen inspecties gevonden.</p>
     } @else {
       <section class="cards-section" aria-label="Meest recente inspecties per deur">
         <div class="cards-grid">
-          @for (card of cards(); track card.id) {
+          @for (card of visibleCards(); track card.id) {
             <article class="inspection-card">
               <header class="card-header">
                 <h2 class="card-title">{{ card.doorName }}</h2>
