@@ -133,7 +133,7 @@ export class InspectionsOverviewComponent {
       for (const inspection of inspections ?? []) {
         const groupingKey = this.getInspectionGroupingKey(inspection);
         const existing = latestByDoor.get(groupingKey);
-        if (!existing || this.getInspectionSortTime(inspection) > this.getInspectionSortTime(existing)) {
+        if (!existing || this.isInspectionMoreRecent(inspection, existing)) {
           latestByDoor.set(groupingKey, inspection);
         }
       }
@@ -198,6 +198,26 @@ export class InspectionsOverviewComponent {
     }
 
     return 0;
+  }
+
+  private getInspectionCreatedTime(inspection: BranddeurInspectie): number {
+    const created = Date.parse(inspection.createdAt || '');
+    if (!Number.isNaN(created)) {
+      return created;
+    }
+
+    return 0;
+  }
+
+  private isInspectionMoreRecent(candidate: BranddeurInspectie, current: BranddeurInspectie): boolean {
+    const candidateInspectionTime = this.getInspectionSortTime(candidate);
+    const currentInspectionTime = this.getInspectionSortTime(current);
+
+    if (candidateInspectionTime !== currentInspectionTime) {
+      return candidateInspectionTime > currentInspectionTime;
+    }
+
+    return this.getInspectionCreatedTime(candidate) > this.getInspectionCreatedTime(current);
   }
 
   private async openBuildingSelection(reportVariant: ReportVariant): Promise<void> {
